@@ -1,0 +1,10 @@
+relationship,ts1_start,ts1_end,ts2_start,ts2_end,rownum
+DOC and sulphate,2,3,8,120,1
+DOC and TP,2,60,,,2
+DOC and SRP,27,50,,,3
+DOC and L.Dief. outflow,20,120,,,4
+Sulphate and L.Dief outflow,20,120,,,5
+Sulphate and Ridge + Iskwao Creek flows,3,9,19,45,6
+SRP and Ridge + Iskwao Creek flows,20,41,,,7
+DOC and Buffalo Pound inflow,30,55,,,8
+Sulphate and Buffalo Pound inflow,10,120,,,9
