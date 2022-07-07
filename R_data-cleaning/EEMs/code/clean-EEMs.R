@@ -519,7 +519,6 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
   
   bpde <- df %>% 
     mutate(Year = factor(year(date_ymd)),
-           Month = month(date_ymd, label = TRUE, abbr = TRUE),
            DOY = yday(date_ymd),
            site_name = factor(site_name)) %>% 
     filter(!grepl("BPWTP", site_name), 
@@ -534,13 +533,41 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
            !Year == 2015) %>% 
     select(-c(SUVA, SUVA254)) %>% 
     mutate(SUVA = A254 / DOC_mg.L) %>% 
-    select(site_name, date_ymd, Year, Month, DOY, TDN_mg.L, DOC_mg.L, SUVA, A254, 
+    select(site_name, date_ymd, Year, DOY, TDN_mg.L, DOC_mg.L, SUVA, A254, 
            A280, A350, A440, S275to295, S350to400, SR, BA, FI, HIX, HIX_Ohno, Fmax, 
            PeakA_RU:PeakT_RU,  turb_lab_NTU, turb_field_NTU, chla_ug.L, secchi_depth_m,
            ext_coeff_m) %>% 
     mutate(SUVA = A254 / DOC_mg.L)
   
-  site_facs <- c(
+  
+  # // remove duplicates from 2016
+  bpde16 <- bpde %>% filter(Year == 2016) %>% distinct() 
+  
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 7.119 & is.na(bpde16$Fmax), "REMOVE", NA)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 7.118 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.786 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.768 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.758 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.752 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.717 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.650 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.639 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.631 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.578 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.571 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.570 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.512 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.368 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.339 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.249 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.198 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.155 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+  bpde16$remove <- ifelse(bpde16$DOC_mg.L == 5.592 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
+
+  bpde16 <- subset(bpde16, is.na(remove)); bpde16 <- select(bpde16, -remove)
+  
+  # // create factors and order them for sites
+  site_facs_df <- c(
     "1.5 km below Qu'Appelle R. Inflow East",
     "1.5 km below Qu'Appelle R. Inflow Centre",
     "1.5 km below Qu'Appelle R. Inflow West",
@@ -575,56 +602,36 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
   site_codes_c <- site_codes[["site_code_long"]]
   site_abbrs_c <- site_codes[["site_abbr"]]
   
+  # // source site coordinates to add to data set
   source("./R_data-cleaning/EEMs/code/site_coordinates.R")
   bp_coords <- site_coords_wip() 
   
-  mons <- c("Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep")
-  
-  bpde <- bpde %>% 
+  # // add factor levels, site coordinates, and calculate peak ratios
+  eems <- bpde %>% 
+    filter(!Year == 2016) %>% 
+    bind_rows(bpde16) %>% 
+    arrange(date_ymd) %>% 
     left_join(bp_coords) %>% 
     left_join(site_codes) %>% 
     select(site_name, site_code_long, site_abbr, everything()) %>% 
     mutate(site_code_long = forcats::fct_relevel(site_code_long, site_codes_c),
            site_abbr = forcats::fct_relevel(site_abbr, site_abbrs_c),
-           Month = month(date_ymd, label = TRUE, abbr = TRUE),
-           Month = as.factor(Month),
-           Month = forcats::fct_relevel(Month, mons),
            AT_ratio = PeakA_RU / PeakT_RU,
            CA_ratio = PeakC_RU / PeakA_RU,
            CM_ratio = PeakC_RU / PeakM_RU,
-           CT_ratio = PeakC_RU / PeakT_RU) %>% 
-    filter(DOC_mg.L < 9)
-  
-  eems16 <- bpde %>%
-    filter(Year == 2016) %>% 
-    mutate(remove = ifelse(!is.na(DOC_mg.L) & is.na(Fmax), "Remove", NA)) %>%
-    arrange(site_code_long) %>% 
-    mutate(rownum = row_number()) %>% 
-    select(rownum, remove, DOC_mg.L, Fmax, everything()) %>%
-    filter(rownum %in% c(2,4,7,9,12,14,17,19,22,24,27,29,32,34,37,40,42,45,47,50,52)) %>% 
-    select(-rownum)
-  
-  eems <- bpde %>% 
-    filter(!Year == 2016) %>% 
-    select(site_num, site_name:DOY, latitude, longitude, distHaversine_m, distHaversine_km,
-           TDN_mg.L:A254, SUVA, S275to295, SR:PeakT_RU, turb_lab_NTU:ext_coeff_m) %>% 
-    mutate(date_ymd = as.character(date_ymd),
+           CT_ratio = PeakC_RU / PeakT_RU,
+           date_ymd = as.character(date_ymd),
            date_ymd = ifelse(date_ymd == "2018-05-25", "2018-05-23", date_ymd),
-           date_ymd = ymd(date_ymd)) %>%
-    bind_rows(eems16)
-  
-  bp_select_sites <- eems %>% 
-    arrange(date_ymd) %>% 
-    mutate(AT_ratio = PeakA_RU / PeakT_RU,
-           CA_ratio = PeakC_RU / PeakA_RU,
-           CM_ratio = PeakC_RU / PeakM_RU,
-           CT_ratio = PeakC_RU / PeakT_RU) %>% 
-    select(site_num:longitude, distHaversine_km, TDN_mg.L, DOC_mg.L, chla_ug.L, A254, A280, A350, A440, 
-           SUVA, BA, FI, HIX, HIX_Ohno, S275to295, S350to400, SR, Fmax, PeakA_RU,
-           PeakB_RU, PeakC_RU, PeakD_RU, PeakE_RU, PeakM_RU, PeakN_RU, PeakP_RU, PeakT_RU,
-           AT_ratio, CA_ratio, CM_ratio, CT_ratio, turb_field_NTU, turb_lab_NTU,
-           secchi_depth_m, ext_coeff_m)
-  
+           date_ymd = ymd(date_ymd),
+           Month = month(date_ymd, label = TRUE, abbr = TRUE)) %>% 
+    filter(DOC_mg.L < 9 & !grepl("Buoy", site_name)) %>% 
+    select(site_name, site_code_long, site_abbr, date_ymd, Year, Month, DOY, latitude, longitude,
+           distHaversine_km, TDN_mg.L, DOC_mg.L, chla_ug.L, SUVA, A254, A280, A350, A440, 
+           BA, FI, HIX, HIX_Ohno, S275to295, S350to400, SR, Fmax, 
+           PeakA_RU, PeakB_RU, PeakC_RU, PeakD_RU, PeakE_RU, PeakM_RU, PeakN_RU, PeakP_RU, PeakT_RU,
+           AT_ratio, CA_ratio, CM_ratio, CT_ratio, 
+           turb_field_NTU, turb_lab_NTU, secchi_depth_m, ext_coeff_m)
+
   outname <- paste0(Sys.Date(), "_", "bp_DOC_EEMs_processed-select-sites.csv")
   outpath <- file.path(outdir, outname)
   
@@ -632,7 +639,7 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
     write.csv(bpde, file = outpath)
   }
   
-  return(bp_select_sites)
+  return(eems)
   
 }
 
