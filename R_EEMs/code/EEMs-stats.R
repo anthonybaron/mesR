@@ -18,6 +18,140 @@ FI_lab <- "Fluorescence index"
 dist_lab <- "Distance from Buffalo Pound Lake inflow (km)"
 
 
+# Are inflow sites statistically different? -------------------------------
+
+inflow <- eems %>% filter(grepl("Inflow", site_code_long))
+
+inflow %>% 
+  ggplot(aes(site_code_long, DOC_mg.L)) + 
+  # facet_wrap(~ Year) +
+  geom_boxplot()
+
+inflow %>% group_by(site_code_long) %>% summarise(n = n())
+
+iaov <- anova_test(DOC_mg.L ~ site_code_long, data = inflow)
+# F(2, 52) = 0.126, p = 0.882 // inflow sites are not significantly different 
+
+
+# Are causeway upstream sites statistically different?  -------------------
+
+us_causeway <- eems %>% filter(grepl("Upstream Causeway", site_code_long)) 
+
+us_causeway %>% 
+  ggplot(aes(site_code_long, DOC_mg.L)) + 
+  # facet_wrap(~ Year) + 
+  geom_boxplot()
+
+us_causeway %>% group_by(site_code_long) %>% summarise(n = n())
+
+ccc <- us_causeway %>% filter(site_code_long == "Upstream Causeway Centre") %>% select(DOC_mg.L)
+cce <- us_causeway %>% filter(site_code_long == "Upstream Causeway East") %>% select(DOC_mg.L)
+
+t.test(ccc, cce, alternative = "two.sided", var.equal = FALSE)
+# upstream causeway sites are not significantly different
+
+lake_inflow <- inflow %>%
+  group_by(date_ymd) %>% 
+  summarise(across(TDN_mg.L:ext_coeff_m, ~ mean(.x, na.rm = TRUE))) %>% 
+  mutate(site_name = "1.5 km below Qu'Appelle R. Inflow Centre",
+         site_code_long = as.factor("Lake Inflow"),
+         site_abbr = as.factor("LI"),
+         Year = as.factor(year(date_ymd)), 
+         Month = month(date_ymd, label = TRUE, abbr = TRUE), 
+         DOY = yday(date_ymd), 
+         latitude = 50.722927,
+         longitude = -105.605669,
+         distHaversine_km = 0) %>% 
+  select(site_name, site_code_long, site_abbr, date_ymd, Year:distHaversine_km, everything())
+
+upstream_causeway <- us_causeway %>% 
+  group_by(date_ymd) %>% 
+  summarise(across(TDN_mg.L:ext_coeff_m, ~ mean(.x, na.rm = TRUE))) %>% 
+  mutate(site_name = "Upstream Causeway",
+         site_code_long = as.factor("Upstream Causeway"),
+         site_abbr = as.factor("CU"),
+         Year = as.factor(year(date_ymd)), 
+         Month = month(date_ymd, label = TRUE, abbr = TRUE), 
+         DOY = yday(date_ymd), 
+         latitude = 50.722927, 
+         longitude = -105.605669,
+         distHaversine_km = 2.18) %>% 
+  select(site_name, site_code_long, site_abbr, date_ymd, Year:distHaversine_km, everything())
+
+
+eems <- subset(eems, !grepl("Inflow", site_code_long))
+eems <- subset(eems, !grepl("Upstream Causeway", site_code_long))
+eems <- eems %>% bind_rows(lake_inflow) %>% bind_rows(upstream_causeway) %>% arrange(date_ymd)
+
+site_codes <- tribble(
+  ~site_code_long,            ~site_abbr,  
+  "Lake Inflow",              "LI",
+  "Upstream Causeway",        "CU",
+  "Below Causeway",           "CB",
+  "Opposite South Lake",      "SL",
+  "Opposite Sun Valley",      "SV",
+  "Opposite Parkview",        "PK", 
+  "WTP Intake",               "TP",
+  "Above Outlet",             "AO"  
+)
+
+site_codes_c <- site_codes[["site_code_long"]]
+site_abbrs_c <- site_codes[["site_abbr"]]
+
+eems <- eems %>% 
+  mutate(site_code_long = forcats::fct_relevel(site_code_long, site_codes_c),
+         site_abbr = forcats::fct_relevel(site_abbr, site_abbrs_c))
+         
+eems %>% 
+  group_by(site_abbr, distHaversine_km) %>% 
+  summarise(DOC_mg.L = mean(DOC_mg.L, na.rm = TRUE)) %>% 
+  ggplot(aes(distHaversine_km, DOC_mg.L, col = site_abbr)) + 
+  geom_point() + 
+  scale_color_viridis_d(end = 0.8)
+
+
+# Seasonal ANOVA ----------------------------------------------------------
+
+ee_spring <- eems %>% filter(Month %in% c("Mar", "Apr", "May", "June")) # n = 61
+ee_summer <- eems %>% filter(Month %in% c("Jul", "Aug", "Sep")) # n = 78
+
+ee_seasons <- eems %>% mutate(Season = ifelse(Month %in% c("Mar", "Apr", "May", "June"), "Spring", "Summer"))
+ee_seasons %>% 
+  group_by(Season, distHaversine_km) %>% 
+  summarise(DOC_mg.L = mean(DOC_mg.L, na.rm = TRUE)) %>%  
+  ggplot(aes(distHaversine_km, DOC_mg.L, col = Season)) + 
+  # geom_line(size = 1) +
+  geom_point(size = 3, col = "white") +
+  geom_point(size = 2) +  
+  geom_smooth(method = 'lm', se = F, alpha = 1/4) + 
+  lims(x = c(0, 30)) +
+  labs(x = dist_lab, y = DOC_lab)
+
+spr <- ee_seasons %>% filter(Season == "Spring") %>% select(DOC_mg.L)
+sum <- ee_seasons %>% filter(Season == "Summer") %>% select(DOC_mg.L)
+
+t.test(spr, sum, alternative = "two.sided", var.equal = FALSE)
+# Spring and summer DOC concentrations are not significantly different
+
+mean_spr <- ee_seasons %>% 
+  filter(Season == "Spring") %>% 
+  group_by(distHaversine_km) %>% 
+  summarise(DOC_mg.L = mean(DOC_mg.L, na.rm = TRUE)) 
+
+mean_sum <- ee_seasons %>% 
+  filter(Season == "Summer") %>% 
+  group_by(distHaversine_km) %>% 
+  summarise(DOC_mg.L = mean(DOC_mg.L, na.rm = TRUE)) 
+
+mspr <- lm(DOC_mg.L ~ distHaversine_km, data = mean_spr)
+summary(mspr)
+# R2 = 0.7232, p = 0.004608 // y = 0.014014x + 5.328478
+
+msum <- lm(DOC_mg.L ~ distHaversine_km, data = mean_sum)
+summary(msum)
+# R2 = 0.9575, p = 1.536e-05 // y = 0.051766x + 4.835060
+
+
 # Group sites -------------------------------------------------------------
 
 lake_order <- c("Inflow", "Causeway", "Mid-lake", "Outlet")
@@ -1260,17 +1394,17 @@ dd_means18 <- dd_means_year %>% filter(Year == "2018")
 dd_means19 <- dd_means_year %>% filter(Year == "2019")
 
 mm1 <- lm(dd_means$DOC_mg.L ~ dd_means$distHaversine_km)
-summary(mm1) # R2 = 0.94, p < 0.0001
+summary(mm1) # R2 = 0.9484, p = 5.7777e-06 // y = 0.038293x + 5.010753
 dd_means %>% ggplot(aes(distHaversine_km, DOC_mg.L)) + geom_point() + geom_smooth(method = 'lm')
 
 mm16 <- lm(dd_means16$DOC_mg.L ~ dd_means16$distHaversine_km)
-summary(mm16) # R2 = 0.59, p = 0.003
+summary(mm16) # R2 = 0.4911, p = 0.02131 // y = 0.03241x + 6.03693
 
 mm17 <- lm(dd_means17$DOC_mg.L ~ dd_means17$distHaversine_km)
-summary(mm17) # R2 = 0.93, p < 0.0001
+summary(mm17) # R2 = 0.9231, p = 2.361e-05 // y = 0.059415x + 5.474772
 
 mm18 <- lm(dd_means18$DOC_mg.L ~ dd_means18$distHaversine_km)
-summary(mm18) # R2 = 0.83, p < 0.0001
+summary(mm18) # R2 = 0.8711, p = 0.0001468 // y = 0.033329x + 4.436347
 
 mm19 <- lm(dd_means19$DOC_mg.L ~ dd_means19$distHaversine_km)
-summary(mm19) # R2 = 0.83, p = 0.001
+summary(mm19) # R2 = 0.7726, p = 0.001113 // y = 0.030489x + 4.573036
