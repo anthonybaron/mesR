@@ -127,8 +127,19 @@ ee_seasons %>%
   geom_point(size = 3, col = "white") +
   geom_point(size = 3) +  
   geom_smooth(method = 'lm', se = F, alpha = 1/4, size = 1) + 
-  lims(x = c(0, 30),
-       y = c(0, 7)) +
+  lims(x = c(0, 30)) +
+  labs(x = dist_lab, y = DOC_lab)
+
+ee_seasons %>% 
+  group_by(Season, distHaversine_km, Year) %>% 
+  summarise(DOC_mg.L = mean(DOC_mg.L, na.rm = TRUE)) %>%  
+  ggplot(aes(distHaversine_km, DOC_mg.L, col = Season, shape = Season)) + 
+  facet_wrap(~ Year) +
+  geom_line(size = 1) +
+  geom_point(size = 3, col = "white") +
+  geom_point(size = 3) +  
+  # geom_smooth(method = 'lm', se = F, alpha = 1/4, size = 1) + 
+  lims(x = c(0, 30)) +
   labs(x = dist_lab, y = DOC_lab)
 
 spr <- ee_seasons %>% filter(Season == "Spring") %>% select(DOC_mg.L)
@@ -255,6 +266,8 @@ ggpubr::ggpaired(ee_seasons_avg, x = "Season", y = "DOC_mg.L",
                  xlab = "Season", ylab = DOC_lab) +
   ggpubr::stat_pvalue_manual(t_test_res) + 
   labs(subtitle = get_test_label(t_test_res, detail = TRUE))
+
+eese
   
 # Group sites -------------------------------------------------------------
 
