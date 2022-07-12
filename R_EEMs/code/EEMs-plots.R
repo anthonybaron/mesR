@@ -95,6 +95,7 @@ PeakN_lab <- "Peak N (RU)"
 PeakP_lab <- "Peak P (RU)"
 PeakT_lab <- "Peak T (RU)"
 S_lab <- "<i>S</i><sub>275–295</sub>"
+S_lab2 <- "<i>S</i><sub>350–400</sub>"
 secchi_lab <- "Secchi depthi (m)"
 SUVA_lab <- expression(paste("SUVA"[254]*" (L mg-C"^-1*" m"^-1*")"))
 TDN_lab <- expression(paste("TDN concentration (mg L"^-1*")")) 
@@ -116,55 +117,102 @@ p_histograms <- eems %>%
   facet_wrap(~ parameter, scales = "free")
 
 
+
+# Preliminary plots -------------------------------------------------------
+
+# HIX <0.6 may be sign of issues, filter >0.6
 eems %>% 
-  mutate(distHaversine_km = distHaversine_km + 1.5) %>% 
+  ggplot(aes(BA, HIX_Ohno, colour = Year)) +
+  facet_wrap(~ Year, nrow = 1) +
+  geom_point(size = 3, alpha = 3/4) +
+  theme(legend.position = "bottom") +
+  labs(x = BA_lab,
+       y = HIX_lab)
+
+eems %>% 
+  group_by(site_code_long, Year) %>% 
   rename(Site = site_code_long) %>% 
-  filter(!is.na(DOC_mg.L)) %>% 
-  group_by(site_abbr, Site, Year, distHaversine_km) %>% 
-  summarise(mean_DOC = mean(DOC_mg.L), 
-            sd_DOC = sd(DOC_mg.L)) %>% 
-  mutate(upper = mean_DOC + sd_DOC,
-         lower = mean_DOC - sd_DOC) %>% 
-  ungroup() %>% 
-  ggplot(aes(distHaversine_km, mean_DOC)) + 
-  facet_wrap(~ Year) +
-  xlim(c(0, 30)) +
-  geom_line() +
-  geom_errorbar(aes(ymin = lower, ymax = upper, col = Site), width = 0.33) +
-  geom_point(aes(col = Site), size = 3) + 
-  scale_color_viridis_d(begin = 0, end = 0.8) +
-  theme(legend.position = 'bottom') +
-  labs(x = "Distance from Buffalo Pound Lake inflow (km)", y = DOC_lab)
+  summarise(mean_BA = mean(BA, na.rm = TRUE),
+            mean_HIX = mean(HIX_Ohno, na.rm = TRUE)) %>% 
+  ggplot(aes(mean_BA, mean_HIX, colour = Year)) +
+  # facet_wrap(~ Year, nrow = 1) +
+  geom_point(size = 3, alpha = 3/4) +
+  theme(legend.position = "bottom") +
+  labs(x = BA_lab,
+       y = HIX_lab)
+
+
+# Absorbance 
+eems %>% 
+  # filter(A254 < 20) %>% 
+  ggplot(aes(DOC_mg.L, A254, colour = Year)) + 
+  facet_wrap(~ Year, nrow = 1) +
+  geom_point(size = 3, alpha = 3/4) +
+  theme(legend.position = "bottom") +
+  labs(x = DOC_lab, y = A254_lab)
+
+# 3 instruments used, Iowa State, Brockport, UVM
+bp_select_sites %>% 
+  # filter(A254 > 5, A254 < 15, !is.na(date_ymd)) %>%
+  ggplot(aes(A254, A280, colour = Year)) + 
+  # geom_smooth(method = 'lm', se = F) +
+  geom_point(size = 3, alpha = 3/4) +
+  facet_wrap(~ Year, nrow = 1) +
+  theme(legend.position = "bottom") +
+  labs(x = A254_lab, y = A280_lab)
+
+bp_select_sites %>% 
+  # filter(!is.na(date_ymd), !Year == "2015", S275to295 < 0.04) %>%
+  ggplot(aes(DOC_mg.L, S275to295, colour = Year)) + 
+  facet_wrap(~ Year, nrow = 1) +
+  # geom_boxplot() + 
+  geom_point(size = 3, alpha = 3/4) +
+  lims(y = c(0.015, 0.030)) +
+  theme(legend.position = "bottom") +
+  labs(x = DOC_lab, y = S_lab) + 
+  theme(axis.title.y = ggtext::element_markdown())
+
+bp_select_sites %>% 
+  # filter(S275to295 < 0.04) %>% 
+  ggplot(aes(HIX_Ohno, S275to295, col = Year)) +
+  facet_wrap(~ Year, nrow = 1) +
+  geom_point(size = 3, alpha = 3/4) +
+  theme(legend.position = "bottom") +
+  labs(x = HIX_lab, y = S_lab) + 
+  theme(axis.title.y = ggtext::element_markdown())
+
+bp_select_sites %>% 
+  # filter(S275to295 < 0.04) %>% 
+  ggplot(aes(S350to400, S275to295, col = Year)) +
+  facet_wrap(~ Year, nrow = 2) +
+  geom_abline(intercept = 0, lty = 2, alpha = 3/4) +
+  geom_point(size = 3, alpha = 3/4) +
+  lims(x = c(0.015, 0.030),
+       y = c(0.015, 0.030)) +
+  theme(legend.position = "bottom") +
+  labs(x = S_lab2, y = S_lab) + 
+  theme(axis.title.x = ggtext::element_markdown(),
+        axis.title.y = ggtext::element_markdown())
+
+bp_select_sites %>% 
+  ggplot(aes(HIX_Ohno, SUVA, col = Year)) +
+  facet_wrap(~ Year, nrow = 2) +
+  geom_point(size = 3, alpha = 3/4) +
+  lims(x = c(NA, 0.90)) +
+  theme(legend.position = "bottom") +
+  labs(x = HIX_lab, y = SUVA_lab) 
+
+bp_select_sites %>% 
+  ggplot(aes(BA, FI, col = Year, shape = Year)) +
+  # facet_wrap(~ Year, nrow = 2) +
+  geom_point(size = 3, alpha = 3/4) +
+  # lims(x = c(NA, 0.90)) +
+  theme(legend.position = "bottom") +
+  labs(x = BA_lab, y = FI_lab) 
 
 
 
-
-ee_means <- eems %>% 
-  mutate(distHaversine_km = distHaversine_km + 1.5) %>% 
-  pivot_longer(cols = c(TDN_mg.L:ext_coeff_m), 
-               names_to = "parameter", 
-               values_to = "result") %>% 
-  mutate(parameter = factor(parameter),
-         Site = site_code_long) %>% 
-  group_by(Site, site_abbr, Year, distHaversine_km, parameter) %>% 
-  summarise(mean_parameter = mean(result, na.rm = TRUE),
-            sd_parameter = sd(result, na.rm = TRUE)) %>% 
-  mutate(lower = mean_parameter - sd_parameter,
-         upper = mean_parameter + sd_parameter) %>% 
-  ungroup() 
-
-ee_means %>% 
-  filter(parameter == "SUVA") %>% 
-  ggplot(aes(distHaversine_km, mean_parameter)) + 
-  facet_wrap(~ Year) +
-  xlim(c(0, 30)) +
-  geom_line() +
-  geom_errorbar(aes(ymin = lower, ymax = upper, col = Site), width = 0.33) +
-  geom_point(aes(col = Site), size = 3) + 
-  scale_color_viridis_d(begin = 0, end = 0.8) +
-  theme(legend.position = 'bottom') +
-  labs(x = "Distance from Buffalo Pound Lake inflow (km)", y = SUVA_lab)
-
+# Parameter plots ---------------------------------------------------------
 
 plot_mean_sd <- function(parm = "", parm_lab = "") { 
  
