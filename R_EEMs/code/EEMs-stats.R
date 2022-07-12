@@ -115,16 +115,20 @@ eems %>%
 ee_spring <- eems %>% filter(Month %in% c("Mar", "Apr", "May", "June")) # n = 61
 ee_summer <- eems %>% filter(Month %in% c("Jul", "Aug", "Sep")) # n = 78
 
-ee_seasons <- eems %>% mutate(Season = ifelse(Month %in% c("Mar", "Apr", "May", "June"), "Spring", "Summer"))
+ee_seasons <- eems %>% 
+  mutate(Season = ifelse(Month %in% c("Mar", "Apr", "May", "June"), "Spring", "Summer"),
+         Season = factor(Season))
+
 ee_seasons %>% 
   group_by(Season, distHaversine_km) %>% 
   summarise(DOC_mg.L = mean(DOC_mg.L, na.rm = TRUE)) %>%  
-  ggplot(aes(distHaversine_km, DOC_mg.L, col = Season)) + 
+  ggplot(aes(distHaversine_km, DOC_mg.L, col = Season, shape = Season)) + 
   # geom_line(size = 1) +
   geom_point(size = 3, col = "white") +
-  geom_point(size = 2) +  
-  geom_smooth(method = 'lm', se = F, alpha = 1/4) + 
-  lims(x = c(0, 30)) +
+  geom_point(size = 3) +  
+  geom_smooth(method = 'lm', se = F, alpha = 1/4, size = 1) + 
+  lims(x = c(0, 30),
+       y = c(0, 7)) +
   labs(x = dist_lab, y = DOC_lab)
 
 spr <- ee_seasons %>% filter(Season == "Spring") %>% select(DOC_mg.L)
@@ -138,20 +142,120 @@ mean_spr <- ee_seasons %>%
   group_by(distHaversine_km) %>% 
   summarise(DOC_mg.L = mean(DOC_mg.L, na.rm = TRUE)) 
 
+var(mean_spr$DOC_mg.L) # = 0.02756821
+
 mean_sum <- ee_seasons %>% 
   filter(Season == "Summer") %>% 
   group_by(distHaversine_km) %>% 
   summarise(DOC_mg.L = mean(DOC_mg.L, na.rm = TRUE)) 
 
+var(mean_sum$DOC_mg.L) # = 0.2977929
+
 mspr <- lm(DOC_mg.L ~ distHaversine_km, data = mean_spr)
 summary(mspr)
 # R2 = 0.7232, p = 0.004608 // y = 0.014014x + 5.328478
+par(mfrow = c(2, 2)); plot(mspr)
+gratia::appraise(mspr)
 
 msum <- lm(DOC_mg.L ~ distHaversine_km, data = mean_sum)
 summary(msum)
 # R2 = 0.9575, p = 1.536e-05 // y = 0.051766x + 4.835060
+par(mfrow = c(2, 2)); plot(msum)
+gratia::appraise(msum)
+
+## // ## 
+
+ee_seasons_avg <- ee_seasons %>% 
+  group_by(Season, distHaversine_km) %>% 
+  summarise(DOC_mg.L = mean(DOC_mg.L, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(logDOC_mg.L = log(DOC_mg.L))
+  
+
+model1 <- glm(DOC_mg.L ~ distHaversine_km * Season, data = ee_seasons_avg)
+summary(model1)
+anova(model1, test = 'F')
+
+# compare to null model
+model_null <- glm(DOC_mg.L ~ 1, data = ee_seasons_avg)
+anova(model_null, model1, test = 'F')
+# model1 is significantly different from the null model
+
+# check the model assumptions
+par(mfrow = c(2,2)); plot(model1)
+
+# check distribution
+ee_seasons_avg %>% 
+  ggplot(aes(log(DOC_mg.L))) + 
+  geom_histogram()
+
+# try log-transformation
+model2 <- glm(logDOC_mg.L ~ distHaversine_km * Season, data = ee_seasons_avg)
+summary(model2)
+anova(model2, test = 'F')
+
+par(mfrow = c(2,2)); plot(model2)
+
+coef(model2)
+
+ee_seasons_avg %>% 
+  ggplot(aes(distHaversine_km, logDOC_mg.L, col = Season, shape = Season)) + 
+  geom_point(size = 3) +
+  lims(x = c(0, 30), y = c(1, 3)) + 
+  labs(x = dist_lab, y = DOC_lab)
 
 
+# all terms significant so no need for model simplication
+
+# the next step in model simplification is to test whether or not Season has a 
+# significant effect on DOC concentration when we control for distHaversine_km;
+# to do this we use update(), and remove Season:
+model3 <- update(model2, ~ . - Season)
+summary(model3)
+anova(model3, test = 'F')
+
+mmm <- glm(logDOC_mg.L ~ distHaversine_km, data = ee_seasons_avg)
+summary(mmm)
+
+anova(model2, model3, test = 'F')
+
+model4 <- glm(formula = logDOC_mg.L ~ distHaversine_km + Season, data = ee_seasons_avg)
+
+## // ##
+
+ee_seasons_avg %>% 
+  ggplot(aes(Season, DOC_mg.L)) + 
+  geom_boxplot()
+
+ee_seasons_avg %>%
+  ungroup() %>%  
+  mutate(Season = factor(Season)) %>% 
+  t_test(formula = DOC_mg.L ~ Season, p.adjust.method = 'bonferroni', detailed = TRUE)
+
+ggpubr::ggpaired(ee_seasons_avg, x = "Season", y = "DOC_mg.L",
+                 order = c("Spring", "Summer"),
+                 xlab = "Season", ylab = DOC_lab)
+
+ee_seasons_avg_wide <- ee_seasons_avg %>% 
+  select(-logDOC_mg.L) %>% 
+  pivot_wider(names_from = Season, values_from = DOC_mg.L) %>% 
+  mutate(differences = Spring - Summer)
+
+ee_seasons_avg_wide %>% identify_outliers(differences) # no extreme outliters
+ee_seasons_avg_wide %>% shapiro_test(differences) # ~ normal
+ggpubr::ggqqplot(ee_seasons_avg_wide, "differences")
+
+t_test_res <- ee_seasons_avg %>% t_test(DOC_mg.L ~ Season, paired = TRUE, detailed = TRUE) %>% add_significance()
+# not significantly different
+
+t_test_res <- t_test_res %>% add_xy_position(x = "Season")
+
+ggpubr::ggpaired(ee_seasons_avg, x = "Season", y = "DOC_mg.L",
+                 order = c("Spring", "Summer"),
+                 xlab = "Season", ylab = DOC_lab) +
+  ggpubr::stat_pvalue_manual(t_test_res) + 
+  labs(subtitle = get_test_label(t_test_res, detail = TRUE))
+  
 # Group sites -------------------------------------------------------------
 
 lake_order <- c("Inflow", "Causeway", "Mid-lake", "Outlet")
