@@ -16,45 +16,49 @@ bp_wq <- function() {
   bpwq_raw <- read_csv("./R_data-cleaning/EEMs/data/raw/other/BuffaloPoundTransects_WSAData_2015-18_clean-data.csv") 
   
   bpwq <- bpwq_raw %>% 
-    mutate(# Above Outlet
-      latitude = ifelse(station.number == "SK05JG0104", 50.57263, latitude),
-      longitude = ifelse(station.number == "SK05JG0104", -105.33030, longitude),
-      site_code_long = ifelse(station.number == "SK05JG0104", "Above Outlet", NA),
-      site_code_long = ifelse(station.number == "SK05JG0102", "WTP Intake", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0098", "Opposite Parkview", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0096", "Opposite Sun Valley", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0095", "Opposite South Lake", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0094", "Below Causeway", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0222", "Upstream Causeway Centre", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0223", "Upstream Causeway East", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0224", "Inflow West", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0220", "Inflow Centre", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0225", "Inflow East", site_code_long),
-      distHaversine_km = ifelse(site_code_long == "Inflow East", 0, NA),
-      distHaversine_km = ifelse(site_code_long == "Inflow Centre", 201.2209, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Inflow West", 433.6200, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Upstream Causeway Centre", 2176.3217, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Upstream Causeway East", 2331.8093, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Below Causeway", 3741.0890, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Opposite South Lake", 7486.3557, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Opposite Sun Valley", 11512.4242, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Opposite Parkview", 18305.6068, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "WTP Intake", 23741.9389, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Above Outlet", 27585.3100, distHaversine_km),
-      distHaversine_km = distHaversine_km / 1000) %>%
-    full_join(bp_coords) %>% 
-    select(station.number, station.name, site_code_long, latitude, longitude, everything()) %>% 
+    mutate(latitude = ifelse(station.number == "SK05JG0104", 50.57263, latitude),
+           longitude = ifelse(station.number == "SK05JG0104", -105.33030, longitude),
+           site_code_long = ifelse(station.number == "SK05JG0104", "Above Outlet", NA),
+           site_code_long = ifelse(station.number == "SK05JG0102", "WTP Intake", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0098", "Opposite Parkview", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0096", "Opposite Sun Valley", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0095", "Opposite South Lake", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0094", "Below Causeway", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0222", "Upstream Causeway Centre", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0223", "Upstream Causeway East", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0224", "Inflow West", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0220", "Inflow Centre", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0225", "Inflow East", site_code_long),
+          site_name = ifelse(site_code_long == "Above Outlet", "0.5 mi Above Outlet", NA),
+          site_name = ifelse(site_code_long == "WTP Intake", "Opposite WTP Intake", site_name),
+          site_name = ifelse(site_code_long == "Opposite Parkview", "Opposite Parkview", site_name),
+          site_name = ifelse(site_code_long == "Opposite Sun Valley", "Opposite Sun Valley", site_name),
+          site_name = ifelse(site_code_long == "Opposite South Lake", "Opposite South Lake", site_name),
+          site_name = ifelse(site_code_long == "Below Causeway", "0.5 mi Below Causeway", site_name),
+          site_name = ifelse(site_code_long == "Upstream Causeway Centre", "Upstream of Causeway Centre", site_name),
+          site_name = ifelse(site_code_long == "Upstream Causeway East", "Upstream of Causeway East", site_name),
+          site_name = ifelse(site_code_long == "Inflow West", "1.5 km below Qu'Appelle R. Inflow West", site_name),
+          site_name = ifelse(site_code_long == "Inflow Centre", "1.5 km below Qu'Appelle R. Inflow Centre", site_name),
+          site_name = ifelse(site_code_long == "Inflow East", "1.5 km below Qu'Appelle R. Inflow East", site_name)) %>%
+    select(-c(latitude, longitude)) %>% 
+    select(site_name, station.number, station.name, site_code_long, everything()) %>% 
     rename(date_ymd = date.time_yyyy.mm.dd.hh.mm.ss) %>% 
     rename_with(~ str_replace(str = .x, pattern = "\\.", replacement = "\\_")) %>% 
+    rename(chla_ug.L = chlorophyll_a_ug.L,
+           ext_coeff_m = PAR_extinction_per.m,
+           TSS_mg.L = TSS_mg_L,
+           turb_field_NTU = turbidity_field_NTU,
+           turb_lab_NTU = turbidity_lab_NTU) %>% 
     separate(date_ymd, into = c("date_ymd", "time"), sep = " ") %>% 
-    select(-c(station_number)) %>% 
-    mutate(date_ymd = ymd(date_ymd),
-           Year = year(date_ymd)) %>% 
-    filter(!is.na(station_name) & !is.na(site_code_long) & !site_code_long == "Upstream Causeway West")
-
+    select(-c(station_number, station_name, time, lake_depth_m)) %>% 
+    filter(!is.na(site_code_long) & !site_code_long == "Upstream Causeway West") 
+  
+  bpwq <- subset(bpwq, !is.na(site_code_long))
+  bpwq <- select(bpwq, -site_code_long)
+  
+  return(bpwq)
   
 }
-
 bp_2015_2016_2017 <- function() {
   
   eems_doc_2015_2016_2017_raw <- read_excel("./R_data-cleaning/EEMs/data/raw/doc-eems/BuffalloPound_DOM_AllData.xlsx",
@@ -110,7 +114,7 @@ bp_2015_2016_2017 <- function() {
            sheet_name = "BP WSA Spatiotemporal",
            source = "JM") %>% 
     mutate_if(is.factor, as.character) %>% 
-    select(file_name, sheet_name, source, site_name, site_altname, everything())
+    select(source, site_name, site_altname, everything())
   
   return(eems_doc_2015_2016_2017)
   
@@ -166,7 +170,7 @@ bp_2016 <- function() {
            file_name = "Helen_2016_DOC&DOM.xlsx",
            sheet_name = "Combined Needs Verification",
            source = "CJW") %>% 
-    select(file_name, sheet_name, source, site_name, site_altname, sample_num:sample_id_EEM, everything())
+    select(source, site_name, site_altname, date_ymd, DOC_mg.L, A254:PeakT_percent)
   
   return(eems_doc_2016)
   
@@ -176,7 +180,7 @@ bp_2017 <- function() {
   clay2017_eems_raw <- read_excel("./R_data-cleaning/EEMs/data/raw/doc-eems/Copy of Results_DOC samples shipped Jan22 2018.xlsx",
                                   sheet = "Combined")
   
-  clay2017_eems1 <- clay2017_eems_raw %>%
+  clay2017_eems <- clay2017_eems_raw %>%
     select(-c(Time)) %>% 
     rename(bottle_id1 = `Bottle ID...1`,
            sample_id = `Bottle ID...2`,
@@ -214,9 +218,9 @@ bp_2017 <- function() {
            file_name = "Copy of Results_DOC samples shipped Jan22 2018.xlsx",
            sheet_name = "Combined",
            source = "CJW") %>% 
-    select(file_name, sheet_name, source, site_name, site_altname, everything())
+    select(source, site_name, site_altname, date_ymd, DOC_mg.L, TDN_mg.L, A254:PeakT_RU)
   
-  return(clay2017_eems1)
+  return(clay2017_eems)
   
 }
 bp_2018 <- function() {
@@ -292,7 +296,7 @@ bp_2018 <- function() {
            file_name = "2018 - 3D-EEM DOC -WSA sample list.xlsx",
            sheet_name = "Sheet1", 
            source = "CJW") %>%  
-    select(lab, site_name, site_altname, everything()) 
+    select(source, site_name, site_altname, date_ymd, DOC_mg.L:PeakT_RU)
   
   return(bp_2018_eems)
   
@@ -447,9 +451,10 @@ bp_2019 <- function() {
                                                                      ifelse(is.na(date_ymd_clay) & site_name == "Upstream of Causeway Centre", "2019-07-22", date_ymd_clay))))))),
            date_ymd_clay = as.character(date_ymd_clay)) %>%
     mutate_at(vars("S275to295", "S350to400", "SR", "PeakP"), as.numeric) %>% 
-    select(sample_id, site_name, date_ymd = date_ymd_clay, DOC_mg.L, A254, chla_ug.L, 
-           A280:PeakT, turb_lab_NTU, turb_field_NTU, secchi_depth_m, ext_coeff_m)
-    
+    rename_at(vars(contains("Peak")), ~ paste0(.x, "_RU")) %>% 
+    select(site_name, date_ymd = date_ymd_clay, DOC_mg.L, A254, chla_ug.L, 
+           A280:PeakT_RU, turb_lab_NTU, turb_field_NTU, secchi_depth_m, ext_coeff_m)
+  
   
   return(bp_doc_eems_2019)
   
@@ -494,7 +499,8 @@ buoy_2019 <- function() {
                               ifelse(grepl("2.8", sample_id), "Buoy 2.8 m", NA)),
            date_ymd = as.character(date_ymd)) %>% 
     mutate_at(vars("DOC_mg.L", "TDN_mg.L", "S275to295", "S350to400", "SR", "PeakP"), as.numeric) %>% 
-    select(site_name, everything())
+    rename_at(vars(contains("Peak")), ~ paste0(.x, "_RU")) %>% 
+    select(site_name, date_ymd:PeakT_RU)
   
   return(buoy_eems_clean)
   
@@ -525,6 +531,7 @@ lat_long <- function() {
 }
 
 # Can ignore all warning messages
+bp_wq <- bp_wq()
 bp_2015_2016_2017 <- bp_2015_2016_2017()
 bp_2016 <- bp_2016()
 bp_2017 <- bp_2017()
@@ -538,18 +545,28 @@ bp_all <- function(write = FALSE, outdir = "./R_data-cleaning/EEMs/data/processe
   lat_long <- latitude_longitude
   
   bp_all <- bind_rows(bp_2015_2016_2017, bp_2016, bp_2017, bp_2018, bp_2019, buoy_2019) %>% 
+    full_join(bp_wq, by = c("site_name", "date_ymd")) %>% 
+    # mutate(chla_ug.L = paste0(chla_ug.L.x, chla_ug.L.y)) %>% 
+    mutate(chla_ug.L = ifelse(is.na(chla_ug.L.x), chla_ug.L.y, NA),
+           chla_ug.L = ifelse(is.na(chla_ug.L.y), chla_ug.L.x, chla_ug.L),
+           turb_field_NTU = ifelse(is.na(turb_field_NTU.x), turb_field_NTU.y, NA),
+           turb_field_NTU = ifelse(is.na(turb_field_NTU.y), turb_field_NTU.x, turb_field_NTU),
+           turb_lab_NTU = ifelse(is.na(turb_lab_NTU.x), turb_lab_NTU.y, NA),
+           turb_lab_NTU = ifelse(is.na(turb_lab_NTU.y), turb_lab_NTU.x, turb_lab_NTU),
+           secchi_depth_m = ifelse(is.na(secchi_depth_m.x), secchi_depth_m.y, NA),
+           secchi_depth_m = ifelse(is.na(secchi_depth_m.y), secchi_depth_m.x, secchi_depth_m),
+           ext_coeff_m = ifelse(is.na(ext_coeff_m.x), ext_coeff_m.y, NA),
+           ext_coeff_m = ifelse(is.na(ext_coeff_m.y), ext_coeff_m.x, ext_coeff_m)) %>% 
     select(-c(latitude, longitude)) %>% 
-    mutate(site_name = as.factor(site_name),
-           date_ymd = ymd(date_ymd),
-           latitude = NA,
-           longitude = NA,
-           latitude = ifelse(is.na(latitude), lat_long$latitude, latitude),
-           longitude = ifelse(is.na(longitude), lat_long$longitude, longitude)) %>%
-    select(file_name, sheet_name, source, lab, UVM_id, Aqualog_id, V1, V2, exp_num, 
-           DF, sample_num, rep_num, sample_id, sample_id_DOC, sample_id_EEM, 
-           bottle_id1, EEMs, Rep, DOC, EEM_contaminated, notes, site_name, 
-           site_altname, date_ymd, latitude, longitude, DOC_mg.L, 
-           A254, everything()) %>%
+    # mutate(site_name = as.factor(site_name),
+    #        date_ymd = ymd(date_ymd),
+    #        latitude = NA,
+    #        longitude = NA,
+    #        latitude = ifelse(is.na(latitude), lat_long$latitude, latitude),
+    #        longitude = ifelse(is.na(longitude), lat_long$longitude, longitude)) %>%
+    select(source, site_name, site_altname, date_ymd, TDN_mg.L, DOC_mg.L, 
+           A254, SUVA:Fmax, chla_ug.L, turb_field_NTU, turb_lab_NTU, TSS_mg.L,
+           ext_coeff_m, secchi_depth_m) %>%
     arrange(-desc(date_ymd))
   
   outname <- paste0(Sys.Date(), "_", "bp_DOC_EEMs_processed.csv")
@@ -578,13 +595,12 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
                              "Qu'Appelle River at Marquis"),
            !is.na(date_ymd),
            !Year == 2015) %>% 
-    select(-c(SUVA, SUVA254)) %>% 
+    select(-c(SUVA)) %>% 
     mutate(SUVA = A254 / DOC_mg.L) %>% 
     select(site_name, date_ymd, Year, DOY, TDN_mg.L, DOC_mg.L, SUVA, A254, 
            A280, A350, A440, S275to295, S350to400, SR, BA, FI, HIX, HIX_Ohno, Fmax, 
            PeakA_RU:PeakT_RU,  turb_lab_NTU, turb_field_NTU, chla_ug.L, secchi_depth_m,
-           ext_coeff_m) %>% 
-    mutate(SUVA = A254 / DOC_mg.L)
+           ext_coeff_m, everything()) 
   
   
   # // remove duplicates from 2016
@@ -610,7 +626,7 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
   bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.198 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
   bpde16$remove <- ifelse(bpde16$DOC_mg.L == 6.155 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
   bpde16$remove <- ifelse(bpde16$DOC_mg.L == 5.592 & is.na(bpde16$Fmax), "REMOVE", bpde16$remove)
-
+  
   bpde16 <- subset(bpde16, is.na(remove)); bpde16 <- select(bpde16, -remove)
   
   # // create factors and order them for sites
@@ -656,29 +672,31 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
   # // add factor levels, site coordinates, and calculate peak ratios
   eems <- bpde %>% 
     filter(!Year == 2016) %>% 
+    # filter(!Year == 2016 & !is.na(site_code_long)) %>% 
     bind_rows(bpde16) %>% 
     arrange(date_ymd) %>% 
-    left_join(bp_coords) %>% 
+    left_join(bp_coords) %>%
     left_join(site_codes) %>% 
     select(site_name, site_code_long, site_abbr, everything()) %>% 
     mutate(site_code_long = forcats::fct_relevel(site_code_long, site_codes_c),
-           site_abbr = forcats::fct_relevel(site_abbr, site_abbrs_c),
-           AT_ratio = PeakA_RU / PeakT_RU,
-           CA_ratio = PeakC_RU / PeakA_RU,
-           CM_ratio = PeakC_RU / PeakM_RU,
-           CT_ratio = PeakC_RU / PeakT_RU,
-           date_ymd = as.character(date_ymd),
-           date_ymd = ifelse(date_ymd == "2018-05-25", "2018-05-23", date_ymd),
-           date_ymd = ymd(date_ymd),
-           Month = month(date_ymd, label = TRUE, abbr = TRUE)) %>% 
+          site_abbr = forcats::fct_relevel(site_abbr, site_abbrs_c),
+          AT_ratio = PeakA_RU / PeakT_RU,
+          CA_ratio = PeakC_RU / PeakA_RU,
+          CM_ratio = PeakC_RU / PeakM_RU,
+          CT_ratio = PeakC_RU / PeakT_RU,
+          date_ymd = as.character(date_ymd),
+          date_ymd = ifelse(date_ymd == "2018-05-25", "2018-05-23", date_ymd),
+          date_ymd = ymd(date_ymd),
+          Month = month(date_ymd, label = TRUE, abbr = TRUE),
+          turb_field_NTU = ifelse(turb_field_NTU < 0, NA, turb_field_NTU)) %>% 
     filter(DOC_mg.L < 9 & !grepl("Buoy", site_name)) %>% 
     select(site_name, site_code_long, site_abbr, date_ymd, Year, Month, DOY, latitude, longitude,
            distHaversine_km, TDN_mg.L, DOC_mg.L, chla_ug.L, SUVA, A254, A280, A350, A440, 
            BA, FI, HIX, HIX_Ohno, S275to295, S350to400, SR, Fmax, 
            PeakA_RU, PeakB_RU, PeakC_RU, PeakD_RU, PeakE_RU, PeakM_RU, PeakN_RU, PeakP_RU, PeakT_RU,
            AT_ratio, CA_ratio, CM_ratio, CT_ratio, 
-           turb_field_NTU, turb_lab_NTU, secchi_depth_m, ext_coeff_m)
-
+           turb_field_NTU, turb_lab_NTU, secchi_depth_m, ext_coeff_m, TSS_mg.L, everything())
+  
   outname <- paste0(Sys.Date(), "_", "bp_DOC_EEMs_processed-select-sites.csv")
   outpath <- file.path(outdir, outname)
   
@@ -690,4 +708,95 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
   
 }
 
+ee <- bp_doc_eems()
 
+ee %>% 
+  group_by(site_abbr, distHaversine_km) %>% 
+  summarise(m)
+  ggplot(aes(distHaversine_km, chla_ug.L, col = site_abbr)) + 
+  facet_wrap(~ Year) +
+  geom_point(size = 3)
+
+  
+df <- ee %>% 
+  mutate(distHaversine_km = distHaversine_km + 1.5) %>% 
+  select(site_code_long, site_abbr, date_ymd, DOY, Year, distHaversine_km, chla_ug.L, turb_field_NTU:ext_coeff_m) %>% 
+  pivot_longer(cols = c(chla_ug.L:ext_coeff_m), 
+               names_to = "parameter", 
+               values_to = "result") %>% 
+  mutate(parameter = factor(parameter),
+         Site = site_code_long) %>% 
+  group_by(Site, site_abbr, Year, distHaversine_km, parameter) %>% 
+  summarise(mean_result = mean(result, na.rm = TRUE),
+            sd_result = sd(result, na.rm = TRUE)) %>% 
+  mutate(lower = mean_result - sd_result,
+         upper = mean_result + sd_result) %>% 
+  ungroup() 
+  
+df %>%
+  filter(parameter == "chla_ug.L" & !Year == "2018") %>% 
+  ggplot(aes(distHaversine_km, mean_result)) + 
+  facet_wrap(~ Year) +
+  xlim(c(0, 30)) +
+  geom_line() +
+  geom_errorbar(aes(ymin = lower, ymax = upper, col = Site), width = 0.33) +
+  geom_point(aes(col = Site), size = 3) + 
+  scale_color_viridis_d(begin = 0, end = 0.8) +
+  theme(legend.position = 'bottom') +
+  labs(x = "Distance from Buffalo Pound Lake Inflow", y = "Chl a")
+
+
+ee %>% 
+  filter(!is.na(chla_ug.L)) %>% 
+  ggplot(aes(distHaversine_km, chla_ug.L, col = Year)) +
+  facet_wrap(~ DOY) + 
+  geom_point(size = 3, alpha = 3/4) +
+  lims(x = c(0, 30), y = c(0, 150)) +
+  scale_color_viridis_d(end = 0.8)
+
+ee %>% 
+  filter(!is.na(turb_field_NTU) & turb_field_NTU < 80) %>% 
+  ggplot(aes(distHaversine_km, turb_field_NTU, col = Year)) +
+  facet_wrap(~ DOY) + 
+  geom_point(size = 3, alpha = 3/4) +
+  lims(x = c(0, 30), y = c(0, 40)) +
+  scale_color_viridis_d(end = 0.8)
+
+ee %>% 
+  filter(!is.na(turb_field_NTU)) %>% 
+  ggplot(aes(distHaversine_km, turb_lab_NTU, col = Year)) +
+  facet_wrap(~ DOY) + 
+  geom_point(size = 3, alpha = 3/4) +
+  lims(x = c(0, 30), y = c(0, 40)) +
+  scale_color_viridis_d(end = 0.8)
+
+ee %>% 
+  filter(!is.na(secchi_depth_m)) %>% 
+  ggplot(aes(distHaversine_km, secchi_depth_m, col = Year)) +
+  facet_wrap(~ DOY) + 
+  geom_point(size = 3, alpha = 3/4) +
+  lims(x = c(0, 30), y = c(0, 4)) +
+  scale_color_viridis_d(end = 0.8)
+
+ee %>% 
+  filter(!is.na(ext_coeff_m)) %>% 
+  ggplot(aes(distHaversine_km, ext_coeff_m, col = Year)) +
+  facet_wrap(~ DOY) + 
+  geom_point(size = 3, alpha = 3/4) +
+  lims(x = c(0, 30), y = c(0, 5)) +
+  scale_color_viridis_d(end = 0.8)
+
+eet <- ee %>% mutate(turb_frac = turb_lab_NTU / turb_field_NTU) 
+
+eet %>% 
+  ggplot(aes(x = turb_frac)) +
+  geom_histogram()
+
+ee %>% select(site_code_long, date_ymd, turb_field_NTU, turb_lab_NTU) %>% View()
+
+eet %>% 
+  filter(turb_field_NTU < 60) %>% 
+  ggplot(aes(turb_field_NTU, turb_lab_NTU)) + 
+  geom_point(alpha = 1/2, size = 3) + 
+  geom_abline(intercept = 0) +
+  lims(x = c(0, 40), y = c(0, 40))
