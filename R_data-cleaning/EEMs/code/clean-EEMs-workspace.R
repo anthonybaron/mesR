@@ -786,6 +786,14 @@ ee %>%
   lims(x = c(0, 30), y = c(0, 5)) +
   scale_color_viridis_d(end = 0.8)
 
+ee %>% 
+  filter(!is.na(DOC_mg.L)) %>% 
+  ggplot(aes(distHaversine_km, DOC_mg.L, col = Year)) +
+  facet_wrap(~ DOY) + 
+  geom_point(size = 3, alpha = 3/4) +
+  lims(x = c(0, 30)) +
+  scale_color_viridis_d(end = 0.8)
+
 eet <- ee %>% mutate(turb_frac = turb_lab_NTU / turb_field_NTU) 
 
 eet %>% 

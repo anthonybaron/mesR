@@ -16,45 +16,32 @@ bp_wq <- function() {
   bpwq_raw <- read_csv("./R_data-cleaning/EEMs/data/raw/other/BuffaloPoundTransects_WSAData_2015-18_clean-data.csv") 
   
   bpwq <- bpwq_raw %>% 
-    mutate(# Above Outlet
-      latitude = ifelse(station.number == "SK05JG0104", 50.57263, latitude),
-      longitude = ifelse(station.number == "SK05JG0104", -105.33030, longitude),
-      site_code_long = ifelse(station.number == "SK05JG0104", "Above Outlet", NA),
-      site_code_long = ifelse(station.number == "SK05JG0102", "WTP Intake", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0098", "Opposite Parkview", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0096", "Opposite Sun Valley", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0095", "Opposite South Lake", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0094", "Below Causeway", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0222", "Upstream Causeway Centre", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0223", "Upstream Causeway East", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0224", "Inflow West", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0220", "Inflow Centre", site_code_long),
-      site_code_long = ifelse(station.number == "SK05JG0225", "Inflow East", site_code_long),
-      distHaversine_km = ifelse(site_code_long == "Inflow East", 0, NA),
-      distHaversine_km = ifelse(site_code_long == "Inflow Centre", 201.2209, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Inflow West", 433.6200, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Upstream Causeway Centre", 2176.3217, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Upstream Causeway East", 2331.8093, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Below Causeway", 3741.0890, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Opposite South Lake", 7486.3557, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Opposite Sun Valley", 11512.4242, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Opposite Parkview", 18305.6068, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "WTP Intake", 23741.9389, distHaversine_km),
-      distHaversine_km = ifelse(site_code_long == "Above Outlet", 27585.3100, distHaversine_km),
-      distHaversine_km = distHaversine_km / 1000) %>%
-    full_join(bp_coords) %>% 
-    select(station.number, station.name, site_code_long, latitude, longitude, everything()) %>% 
+    mutate(latitude = ifelse(station.number == "SK05JG0104", 50.57263, latitude),
+           longitude = ifelse(station.number == "SK05JG0104", -105.33030, longitude),
+           site_code_long = ifelse(station.number == "SK05JG0104", "Above Outlet", NA),
+           site_code_long = ifelse(station.number == "SK05JG0102", "WTP Intake", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0098", "Opposite Parkview", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0096", "Opposite Sun Valley", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0095", "Opposite South Lake", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0094", "Below Causeway", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0222", "Upstream Causeway Centre", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0223", "Upstream Causeway East", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0224", "Inflow West", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0220", "Inflow Centre", site_code_long),
+           site_code_long = ifelse(station.number == "SK05JG0225", "Inflow East", site_code_long)) %>% 
+    select(-c(latitude, longitude)) %>% 
+    select(station.number, station.name, site_code_long, everything()) %>% 
     rename(date_ymd = date.time_yyyy.mm.dd.hh.mm.ss) %>% 
     rename_with(~ str_replace(str = .x, pattern = "\\.", replacement = "\\_")) %>% 
     separate(date_ymd, into = c("date_ymd", "time"), sep = " ") %>% 
-    select(-c(station_number)) %>% 
-    mutate(date_ymd = ymd(date_ymd),
-           Year = year(date_ymd)) %>% 
-    filter(!is.na(station_name) & !is.na(site_code_long) & !site_code_long == "Upstream Causeway West")
-
+    select(-c(station_number, station_name, time)) %>% 
+    filter(!is.na(site_code_long) & !site_code_long == "Upstream Causeway West")
   
-}
+  bpwq <- subset(bpwq, !is.na(site_code_long))
+  
+  return(bpwq)
 
+}
 bp_2015_2016_2017 <- function() {
   
   eems_doc_2015_2016_2017_raw <- read_excel("./R_data-cleaning/EEMs/data/raw/doc-eems/BuffalloPound_DOM_AllData.xlsx",
@@ -525,6 +512,7 @@ lat_long <- function() {
 }
 
 # Can ignore all warning messages
+bp_wq <- bp_wq()
 bp_2015_2016_2017 <- bp_2015_2016_2017()
 bp_2016 <- bp_2016()
 bp_2017 <- bp_2017()
@@ -537,18 +525,18 @@ bp_all <- function(write = FALSE, outdir = "./R_data-cleaning/EEMs/data/processe
   
   lat_long <- latitude_longitude
   
-  bp_all <- bind_rows(bp_2015_2016_2017, bp_2016, bp_2017, bp_2018, bp_2019, buoy_2019) %>% 
+  bp_all <- bind_rows(bp_wq, bp_2015_2016_2017, bp_2016, bp_2017, bp_2018, bp_2019, buoy_2019) %>% 
     select(-c(latitude, longitude)) %>% 
-    mutate(site_name = as.factor(site_name),
-           date_ymd = ymd(date_ymd),
-           latitude = NA,
-           longitude = NA,
-           latitude = ifelse(is.na(latitude), lat_long$latitude, latitude),
-           longitude = ifelse(is.na(longitude), lat_long$longitude, longitude)) %>%
-    select(file_name, sheet_name, source, lab, UVM_id, Aqualog_id, V1, V2, exp_num, 
+    # mutate(site_name = as.factor(site_name),
+    #        date_ymd = ymd(date_ymd),
+    #        latitude = NA,
+    #        longitude = NA,
+    #        latitude = ifelse(is.na(latitude), lat_long$latitude, latitude),
+    #        longitude = ifelse(is.na(longitude), lat_long$longitude, longitude)) %>%
+    select(file_name, sheet_name, source, lab, UVM_id, Aqualog_id, V1, V2, exp_num, # removing lat, long
            DF, sample_num, rep_num, sample_id, sample_id_DOC, sample_id_EEM, 
            bottle_id1, EEMs, Rep, DOC, EEM_contaminated, notes, site_name, 
-           site_altname, date_ymd, latitude, longitude, DOC_mg.L, 
+           site_altname, date_ymd, DOC_mg.L, 
            A254, everything()) %>%
     arrange(-desc(date_ymd))
   
@@ -583,7 +571,7 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
     select(site_name, date_ymd, Year, DOY, TDN_mg.L, DOC_mg.L, SUVA, A254, 
            A280, A350, A440, S275to295, S350to400, SR, BA, FI, HIX, HIX_Ohno, Fmax, 
            PeakA_RU:PeakT_RU,  turb_lab_NTU, turb_field_NTU, chla_ug.L, secchi_depth_m,
-           ext_coeff_m) %>% 
+           ext_coeff_m, everything()) %>% 
     mutate(SUVA = A254 / DOC_mg.L)
   
   
@@ -654,13 +642,15 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
   bp_coords <- site_coords_wip() 
   
   # // add factor levels, site coordinates, and calculate peak ratios
+  bpde <- subset()
+  
   eems <- bpde %>% 
-    filter(!Year == 2016) %>% 
+    filter(!Year == 2016 & !is.na(site_code_long)) %>% 
     bind_rows(bpde16) %>% 
     arrange(date_ymd) %>% 
     left_join(bp_coords) %>% 
     left_join(site_codes) %>% 
-    select(site_name, site_code_long, site_abbr, everything()) %>% 
+    select(site_name, site_code_long, site_abbr, everything()) %>% View()
     mutate(site_code_long = forcats::fct_relevel(site_code_long, site_codes_c),
            site_abbr = forcats::fct_relevel(site_abbr, site_abbrs_c),
            AT_ratio = PeakA_RU / PeakT_RU,
@@ -670,14 +660,15 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
            date_ymd = as.character(date_ymd),
            date_ymd = ifelse(date_ymd == "2018-05-25", "2018-05-23", date_ymd),
            date_ymd = ymd(date_ymd),
-           Month = month(date_ymd, label = TRUE, abbr = TRUE)) %>% 
+           Month = month(date_ymd, label = TRUE, abbr = TRUE),
+           turb_field_NTU = ifelse(turb_field_NTU < 0, NA, turb_field_NTU)) %>% 
     filter(DOC_mg.L < 9 & !grepl("Buoy", site_name)) %>% 
     select(site_name, site_code_long, site_abbr, date_ymd, Year, Month, DOY, latitude, longitude,
            distHaversine_km, TDN_mg.L, DOC_mg.L, chla_ug.L, SUVA, A254, A280, A350, A440, 
            BA, FI, HIX, HIX_Ohno, S275to295, S350to400, SR, Fmax, 
            PeakA_RU, PeakB_RU, PeakC_RU, PeakD_RU, PeakE_RU, PeakM_RU, PeakN_RU, PeakP_RU, PeakT_RU,
            AT_ratio, CA_ratio, CM_ratio, CT_ratio, 
-           turb_field_NTU, turb_lab_NTU, secchi_depth_m, ext_coeff_m)
+           turb_field_NTU, turb_lab_NTU, secchi_depth_m, ext_coeff_m, everything())
 
   outname <- paste0(Sys.Date(), "_", "bp_DOC_EEMs_processed-select-sites.csv")
   outpath <- file.path(outdir, outname)
