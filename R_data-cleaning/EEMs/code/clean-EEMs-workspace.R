@@ -710,13 +710,6 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
 
 ee <- bp_doc_eems()
 
-ee %>% 
-  group_by(site_abbr, distHaversine_km) %>% 
-  summarise(m)
-  ggplot(aes(distHaversine_km, chla_ug.L, col = site_abbr)) + 
-  facet_wrap(~ Year) +
-  geom_point(size = 3)
-
   
 df <- ee %>% 
   mutate(distHaversine_km = distHaversine_km + 1.5) %>% 
@@ -752,10 +745,12 @@ ee %>%
   facet_wrap(~ DOY) + 
   geom_point(size = 3, alpha = 3/4) +
   lims(x = c(0, 30), y = c(0, 150)) +
-  scale_color_viridis_d(end = 0.8)
+  theme(legend.position = "bottom") +
+  scale_color_viridis_d(end = 0.8) +
+  labs(x = "Distance", y = "Chl a")
 
 ee %>% 
-  filter(!is.na(turb_field_NTU) & turb_field_NTU < 80) %>% 
+  filter(!is.na(turb_field_NTU)) %>% 
   ggplot(aes(distHaversine_km, turb_field_NTU, col = Year)) +
   facet_wrap(~ DOY) + 
   geom_point(size = 3, alpha = 3/4) +
@@ -763,7 +758,7 @@ ee %>%
   scale_color_viridis_d(end = 0.8)
 
 ee %>% 
-  filter(!is.na(turb_field_NTU)) %>% 
+  filter(!is.na(turb_lab_NTU)) %>% 
   ggplot(aes(distHaversine_km, turb_lab_NTU, col = Year)) +
   facet_wrap(~ DOY) + 
   geom_point(size = 3, alpha = 3/4) +
@@ -803,7 +798,7 @@ eet %>%
 ee %>% select(site_code_long, date_ymd, turb_field_NTU, turb_lab_NTU) %>% View()
 
 eet %>% 
-  filter(turb_field_NTU < 60) %>% 
+  # filter(turb_field_NTU < 60) %>% 
   ggplot(aes(turb_field_NTU, turb_lab_NTU)) + 
   geom_point(alpha = 1/2, size = 3) + 
   geom_abline(intercept = 0) +

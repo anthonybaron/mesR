@@ -2,6 +2,7 @@ library(dplyr)
 library(ggplot2)
 library(ggthemes)
 library(patchwork)
+library(ggtext)
 
 theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank()))
 
@@ -17,7 +18,7 @@ cce <- us_causeway %>% filter(site_code_long == "Upstream Causeway East") %>% se
 
 lake_inflow <- inflow %>%
   group_by(date_ymd) %>% 
-  summarise(across(TDN_mg.L:ext_coeff_m, ~ mean(.x, na.rm = TRUE))) %>% 
+  summarise(across(TDN_mg.L:TSS_mg.L, ~ mean(.x, na.rm = TRUE))) %>% 
   mutate(site_name = "1.5 km below Qu'Appelle R. Inflow Centre",
          site_code_long = as.factor("Lake Inflow"),
          site_abbr = as.factor("LI"),
@@ -31,7 +32,7 @@ lake_inflow <- inflow %>%
 
 upstream_causeway <- us_causeway %>% 
   group_by(date_ymd) %>% 
-  summarise(across(TDN_mg.L:ext_coeff_m, ~ mean(.x, na.rm = TRUE))) %>% 
+  summarise(across(TDN_mg.L:TSS_mg.L, ~ mean(.x, na.rm = TRUE))) %>% 
   mutate(site_name = "Upstream Causeway",
          site_code_long = as.factor("Upstream Causeway"),
          site_abbr = as.factor("CU"),
@@ -75,16 +76,17 @@ A280_lab <- expression(paste("A"[280]*""))
 A350_lab <- expression(paste("A"[350]*""))
 A440_lab <- expression(paste("A"[440]*""))
 AT_ratio_lab <- "Peak A:Peak T"
-BA_lab <- expression(paste("Freshness Index (", italic(β), ":", italic(α), ")"))
-Chla_lab <- expression(paste("Chl", itlaic(a), "concentration (µg L"^-1*")")) 
+BA_lab <- "Freshness index<br>(<i>&beta;<i/>:<i>&alpha;<i/>)"
+BA_lab1 <- expression(paste("Freshness Index (", italic(β), ":", italic(α), ")"))
+Chla_lab <- expression(paste("Chl ", italic(a), " (µg L"^-1*")")) 
 CA_ratio_lab <- "Peak C:Peak A"
 CM_ratio_lab <- "Peak C:Peak M"
 CT_ratio_lab <- "Peak C:Peak T"
 dist_lab <- "Distance from Buffalo Pound Lake inflow (km)"
-DOC_lab <- expression(paste("DOC concentration (mg L"^-1*")")) 
+DOC_lab <- expression(paste("DOC (mg L"^-1*")")) 
 extinction_coefficient_lab <- expression(paste("k"[T]*" (m"^-1*")"))
-FI_lab <- "Fluorescence Index"
-HIX_lab <- "Humification Index"
+FI_lab <- "Fluorescence index<br>(FI)"
+HIX_lab <- "Humification index<br>(HIX)"
 PeakA_lab <- "Peak A (RU)"
 PeakB_lab <- "Peak B (RU)"
 PeakC_lab <- "Peak C (RU)"
@@ -94,13 +96,14 @@ PeakM_lab <- "Peak M (RU)"
 PeakN_lab <- "Peak N (RU)"
 PeakP_lab <- "Peak P (RU)"
 PeakT_lab <- "Peak T (RU)"
-S_lab <- "<i>S</i><sub>275–295</sub>"
-S_lab2 <- "<i>S</i><sub>350–400</sub>"
-secchi_lab <- "Secchi depthi (m)"
-SUVA_lab <- expression(paste("SUVA"[254]*" (L mg-C"^-1*" m"^-1*")"))
-TDN_lab <- expression(paste("TDN concentration (mg L"^-1*")")) 
-turb_field_lab <- "Field turbidity (NTU)"
-turb_lab_lab <- "Lab turbidity (NTU)"
+S_lab <- "<i>S</i><sub>275–295</sub><br>(nm<sup>–1</sup>)"
+S_lab2 <- "<i>S</i><sub>350–400</sub> (nm<sup>–1</sup>)"
+secchi_lab <- "Secchi depth (m)"
+SUVA_lab <- "SUVA<sub>254</sub><br>(L mg-C<sup>–1</sup> m<sup>–1</sup>)"
+SUVA_lab1 <- expression(paste("SUVA"[254]*" (L mg-C"^-1*" m"^-1*")"))
+TDN_lab <- expression(paste("TDN (mg L"^-1*")")) 
+turb_field_lab <- expression(paste("Turbidity"[field]*" (NTU)"))
+turb_lab_lab <- expression(paste("Turbidity"[lab]*" (NTU)"))
 
 
 # Histograms --------------------------------------------------------------
@@ -113,8 +116,9 @@ p_histograms <- eems %>%
   pivot_longer(cols = everything(), names_to = "parameter", values_to = "result") %>% 
   filter(!is.na(result)) %>% 
   ggplot(aes(x = result)) + 
+  facet_wrap(~ parameter, scales = "free") +
   geom_histogram() + 
-  facet_wrap(~ parameter, scales = "free")
+  labs(x = "Values", y = "Count")
 
 
 
@@ -215,39 +219,6 @@ bp_select_sites %>%
 # Parameter plots ---------------------------------------------------------
 
 plot_mean_sd <- function(parm = "", parm_lab = "") { 
- 
-  # parm_labs <- tribble(
-  #   
-  #   ~parameter,       ~parm_lab,
-  #   "A254",           expression(paste("A"[254]*"")),
-  #   "AT_ratio",       "Peak A:Peak T",
-  #   "BA",             expression(paste("Freshness Index (", italic(β), ":", italic(α), ")")),
-  #   "chla_ug.L",      expression(paste("Chl", itlaic(a), "concentration (µg L"^-1*")")),
-  #   "CA_ratio",       "Peak C:Peak A",
-  #   "CM_ratio",       "Peak C:Peak M",
-  #   "CT_ratio",       "Peak C:Peak T",
-  #   "dist",           "Distance from Buffalo Pound Lake inflow (km)",
-  #   "DOC_mg.L",       expression(paste("DOC concentration (mg L"^-1*")")),
-  #   "ext_coeff_m",    expression(paste("k"[T]*" (m"^-1*")")),
-  #   "FI",             "Fluorescence Index",
-  #   "HIX_Ohno",       "Humification Index",
-  #   "PeakA_RU",       "Peak A (RU)",
-  #   "PeakB_RU",       "Peak B (RU)",
-  #   "PeakC_RU",       "Peak C (RU)",
-  #   "PeakD_RU",       "Peak D (RU)",
-  #   "PeakE_RU",       "Peak E (RU)",
-  #   "PeakM_RU",       "Peak M (RU)", 
-  #   "PeakN_RU",       "Peak N (RU)",
-  #   "PeakP_RU",       "Peak P (RU)",
-  #   "PeakT_RU",       "Peak T (RU)",
-  #   "S275to295",      "<i>S</i><sub>275–295</sub>",
-  #   "secchi_depth_m", "Secchi depthi (m)",
-  #   "SUVA",           expression(paste("TDN concentration (mg L"^-1*")")), 
-  #   "TDN_mg.L",       expression(paste("TDN concentration (mg L"^-1*")")), 
-  #   "turb_field_NTU", "Field turbidity (NTU)",
-  #   "turb_lab_NTU",   "Lab turbidity (NTU)"
-  #   
-  # )
   
   df <- eems %>% 
     mutate(distHaversine_km = distHaversine_km + 1.5) %>% 
@@ -264,50 +235,97 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
     ungroup() 
   
   p_mean_sd <- df %>% 
-    filter(parameter == parm) %>% 
+    # filter(parameter == parm & !is.na(mean_parameter)) %>%
+    filter(parameter == parm) %>%
     ggplot(aes(distHaversine_km, mean_parameter)) + 
-    facet_wrap(~ Year) +
+    facet_wrap(~ Year, nrow = 1) +
     xlim(c(0, 30)) +
     geom_line() +
     geom_errorbar(aes(ymin = lower, ymax = upper, col = Site), width = 0.33) +
     geom_point(aes(col = Site), size = 3) + 
     scale_color_viridis_d(begin = 0, end = 0.8) +
-    theme(legend.position = 'bottom') +
+    theme(legend.position = "bottom") +
     labs(x = dist_lab, y = parm_lab)
     
   return(p_mean_sd)
   
   }
 
-plot_mean_sd(parm = "A254", parm_lab = A254_lab)
-plot_mean_sd(parm = "A280", parm_lab = A280_lab)
-plot_mean_sd(parm = "A350", parm_lab = A350_lab)
-plot_mean_sd(parm = "A440", parm_lab = A440_lab)
-plot_mean_sd(parm = "chla_ug.L", parm_lab = Chla_lab)
-plot_mean_sd(parm = "turb_field_NTU", parm_lab = turb_field_lab)
-plot_mean_sd(parm = "turb_lab_NTU", parm_lab = turb_lab_lab)
-plot_mean_sd(parm = "ext_coeff_m", parm_lab = extinction_coefficient_lab)
-plot_mean_sd(parm = "secchi_depth_m", parm_lab = secchi_lab)
-plot_mean_sd(parm = "TDN_mg.L", parm_lab = TDN_lab)
-plot_mean_sd(parm = "DOC_mg.L", parm_lab = DOC_lab)
-plot_mean_sd(parm = "SUVA", parm_lab = SUVA_lab)
-plot_mean_sd(parm = "S275to295", parm_lab = "S275to295")
-plot_mean_sd(parm = "S350to400", parm_lab = "S350to400")
-plot_mean_sd(parm = "SR", parm_lab = "Spectral slope ratio")
-plot_mean_sd(parm = "FI", parm_lab = FI_lab)
-plot_mean_sd(parm = "HIX_Ohno", parm_lab = HIX_lab)
-plot_mean_sd(parm = "BA", parm_lab = BA_lab)
+p_m_sd_A254 <- plot_mean_sd(parm = "A254", parm_lab = A254_lab) + ylim(c(7, NA)) + labs(x = NULL, tag = 'A') + theme(axis.text.x = element_blank())
+p_m_sd_A280 <- plot_mean_sd(parm = "A280", parm_lab = A280_lab) + ylim(c(NA, 12)) + labs(x = NULL, tag = 'B') + theme(axis.text.x = element_blank())
+p_m_sd_A350 <- plot_mean_sd(parm = "A350", parm_lab = A350_lab) + labs(x = NULL, tag = 'C') + theme(axis.text.x = element_blank())
+p_m_sd_A440 <- plot_mean_sd(parm = "A440", parm_lab = A440_lab) + labs(tag = 'D')
+### p_m_sd_Chla <- plot_mean_sd(parm = "chla_ug.L", parm_lab = Chla_lab) + labs(x = NULL, tag = 'C')
+### p_m_sd_fieldturb <- plot_mean_sd(parm = "turb_field_NTU", parm_lab = turb_field_lab) + ylim(c(NA, 100)) + labs(x = NULL, tag = 'A')
+### p_m_sd_labturb <- plot_mean_sd(parm = "turb_lab_NTU", parm_lab = turb_lab_lab) + labs(x = NULL, tag = 'B')
+### p_m_sd_extcoeff <- plot_mean_sd(parm = "ext_coeff_m", parm_lab = extinction_coefficient_lab) + ylim(c(0, NA)) + labs(x = NULL, tag = 'D')
+### p_m_sd_secchi <- plot_mean_sd(parm = "secchi_depth_m", parm_lab = secchi_lab) + labs(tag = 'E')
+p_m_sd_TDN <- plot_mean_sd(parm = "TDN_mg.L", parm_lab = TDN_lab) + ylim(c(0.2, 0.6)) + labs(x = NULL, tag = 'A')
+p_m_sd_DOC <- plot_mean_sd(parm = "DOC_mg.L", parm_lab = DOC_lab) + labs(x = NULL, tag = 'B')
+p_m_sd_SUVA <- plot_mean_sd(parm = "SUVA", parm_lab = SUVA_lab) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'A')
+p_m_sd_S275to295 <- plot_mean_sd(parm = "S275to295", parm_lab = S_lab) + theme(axis.title.y = element_markdown()) + ylim(c(0.018, 0.026)) + labs(x = NULL, tag = 'E')
+p_m_sd_S350to400 <- plot_mean_sd(parm = "S350to400", parm_lab = S_lab2) + theme(axis.title.y = element_markdown()) + ylim(c(NA, 0.022)) + labs(x = NULL, tag = 'A')
+p_m_sd_SR <- plot_mean_sd(parm = "SR", parm_lab = "SR") + labs(tag = 'B') 
+p_m_sd_FI <- plot_mean_sd(parm = "FI", parm_lab = FI_lab) + ylim(c(1.50, 1.65)) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'B')
+p_m_sd_HIX <- plot_mean_sd(parm = "HIX_Ohno", parm_lab = HIX_lab) + ylim(c(NA, 0.88)) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'C')
+p_m_sd_BA <- plot_mean_sd(parm = "BA", parm_lab = BA_lab) + ylim(c(0.69, 0.84)) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'D')
 # plot_mean_sd(parm = "Fmax", parm_lab = "Fmax")
-plot_mean_sd(parm = "PeakA_RU", parm_lab = PeakA_lab)
-plot_mean_sd(parm = "PeakB_RU", parm_lab = PeakB_lab)
-plot_mean_sd(parm = "PeakC_RU", parm_lab = PeakC_lab)
-plot_mean_sd(parm = "PeakD_RU", parm_lab = PeakD_lab)
-plot_mean_sd(parm = "PeakE_RU", parm_lab = PeakE_lab)
-plot_mean_sd(parm = "PeakM_RU", parm_lab = PeakM_lab)
-plot_mean_sd(parm = "PeakN_RU", parm_lab = PeakN_lab)
-plot_mean_sd(parm = "PeakP_RU", parm_lab = PeakP_lab)
-plot_mean_sd(parm = "PeakT_RU", parm_lab = PeakT_lab)
-plot_mean_sd(parm = "AT_ratio", parm_lab = AT_ratio_lab)
-plot_mean_sd(parm = "CA_ratio", parm_lab = CA_ratio_lab)
-plot_mean_sd(parm = "CM_ratio", parm_lab = CM_ratio_lab)
-plot_mean_sd(parm = "CT_ratio", parm_lab = CT_ratio_lab)
+p_m_sd_PeakA <- plot_mean_sd(parm = "PeakA_RU", parm_lab = PeakA_lab) + ylim(c(0.6, 1.5)) + labs(x = NULL, tag = 'A')
+p_m_sd_PeakC <- plot_mean_sd(parm = "PeakC_RU", parm_lab = PeakC_lab) + ylim(c(0.35, NA)) + labs(x = NULL, tag = 'B')
+p_m_sd_PeakM <- plot_mean_sd(parm = "PeakM_RU", parm_lab = PeakM_lab) + labs(x = NULL, tag = 'C')
+p_m_sd_PeakD <- plot_mean_sd(parm = "PeakD_RU", parm_lab = PeakD_lab) + labs(tag = 'D')
+p_m_sd_PeakB <- plot_mean_sd(parm = "PeakB_RU", parm_lab = PeakB_lab) + ylim(c(0.1, NA)) + labs(x = NULL, tag = 'A')
+p_m_sd_PeakT <- plot_mean_sd(parm = "PeakT_RU", parm_lab = PeakT_lab) + ylim(c(NA, 0.45)) + labs(x = NULL, tag = 'B')
+p_m_sd_PeakE <- plot_mean_sd(parm = "PeakE_RU", parm_lab = PeakE_lab) + labs(x = NULL, tag = 'C')
+p_m_sd_PeakN <- plot_mean_sd(parm = "PeakN_RU", parm_lab = PeakN_lab) + ylim(c(NA, 0.45)) + labs(tag = 'D')
+# plot_mean_sd(parm = "PeakP_RU", parm_lab = PeakP_lab) + labs(x = NULL, tag = 'H')
+p_m_sd_ATratio <- plot_mean_sd(parm = "AT_ratio", parm_lab = AT_ratio_lab) + labs(x = NULL, tag = 'A')
+p_m_sd_CTratio <- plot_mean_sd(parm = "CT_ratio", parm_lab = CT_ratio_lab) + labs(tag = 'F')
+p_m_sd_CAratio <- plot_mean_sd(parm = "CA_ratio", parm_lab = CA_ratio_lab) + labs(x = NULL, tag = 'B')
+p_m_sd_CMratio <- plot_mean_sd(parm = "CM_ratio", parm_lab = CM_ratio_lab) + labs(tag = 'C')
+
+p_outname <- "./R_EEMs/outputs/figures/"
+dd <- "20220717_"
+
+# Water quality plots
+p_wq <- (p_m_sd_fieldturb / p_m_sd_labturb / p_m_sd_Chla / p_m_sd_extcoeff / p_m_sd_secchi) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+ggsave(paste0(p_outname, dd, "p_wq.png"), p_wq, w = 7.2, h = 10.6)
+
+
+# p_tdn_doc_suva <- (p_m_sd_TDN / p_m_sd_DOC/ p_m_sd_SUVA) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+# ggsave(paste0(p_outname, dd, "p_tdn_doc_suva.png"), p_tdn_doc_suva, w = 7.2, h = 7.4)
+
+p_tdn_doc <- (p_m_sd_TDN / p_m_sd_DOC) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+
+# Absorbance and fluorescence plots
+p_abs <- (p_m_sd_A254 / p_m_sd_A280 / p_m_sd_A350 / p_m_sd_A440) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+ggsave(paste0(p_outname, dd, "p_abs.png"), p_abs, w = 7.2, h = 7.4)
+
+p_slopes <- (p_m_sd_S350to400 / p_m_sd_SR) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+
+p_abs_flor <- (p_m_sd_SUVA / p_m_sd_FI / p_m_sd_HIX / p_m_sd_BA / p_m_sd_S275to295 / p_m_sd_CTratio) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+ggsave(paste0(p_outname, dd, "p_abs_flor.png"), p_abs_flor, w = 8, h = 11.1)
+
+
+
+# Peak plots
+p_humic_peaks <- (p_m_sd_PeakA / p_m_sd_PeakC / p_m_sd_PeakM / p_m_sd_PeakD) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+p_fresh_peaks <- (p_m_sd_PeakB / p_m_sd_PeakT / p_m_sd_PeakE / p_m_sd_PeakN) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+
+p_peak_ratios <- (p_m_sd_ATratio / p_m_sd_CTratio / p_m_sd_CAratio / p_m_sd_CMratio) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+
+
+
+
+eems %>% 
+  # filter(turb_field_NTU < 80) %>%
+  ggplot(aes(turb_field_NTU, turb_lab_NTU)) + 
+  geom_point() + 
+  geom_abline(intercept = c(0, 0))
+
+eems %>% 
+  select(site_code_long, turb_field_NTU, turb_lab_NTU) %>% 
+  pivot_longer(cols = -site_code_long, names_to = "parameter", values_to = "result") %>% View()
+  ggplot(aes(parameter, result)) + 
+  geom_boxplot() + 
+  labs(x = NULL, y = "Turbidity (NTU)")

@@ -91,8 +91,8 @@ site_coords_wip <- function() { ##### coords taken from BuffalloPound_DOM_AllDat
   
 }
 
-scwip <- site_coords_wip()
-write_csv(scwip, paste0(getwd(), "/R_data-cleaning/EEMs/data/clean/site_coordinates.csv"))
+# scwip <- site_coords_wip()
+# write_csv(scwip, paste0(getwd(), "/R_data-cleaning/EEMs/data/clean/site_coordinates.csv"))
 
 
 
