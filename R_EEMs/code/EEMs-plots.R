@@ -7,7 +7,10 @@ library(ggtext)
 theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank()))
 
 source("./R_data-cleaning/EEMs/code/clean-EEMs.R")
-eems <- bp_doc_eems()
+eems <- bp_doc_eems() %>% 
+  select(site_name:FI, HIX_Ohno:SR, PeakA_RU:ext_coeff_m, spA:spT) # %>% 
+  # filter(spB < 0.1)
+
 
 # Data prep ---------------------------------------------------------------
 
@@ -18,7 +21,7 @@ cce <- us_causeway %>% filter(site_code_long == "Upstream Causeway East") %>% se
 
 lake_inflow <- inflow %>%
   group_by(date_ymd) %>% 
-  summarise(across(TDN_mg.L:TSS_mg.L, ~ mean(.x, na.rm = TRUE))) %>% 
+  summarise(across(TDN_mg.L:spT, ~ mean(.x, na.rm = TRUE))) %>% 
   mutate(site_name = "1.5 km below Qu'Appelle R. Inflow Centre",
          site_code_long = as.factor("Lake Inflow"),
          site_abbr = as.factor("LI"),
@@ -32,7 +35,7 @@ lake_inflow <- inflow %>%
 
 upstream_causeway <- us_causeway %>% 
   group_by(date_ymd) %>% 
-  summarise(across(TDN_mg.L:TSS_mg.L, ~ mean(.x, na.rm = TRUE))) %>% 
+  summarise(across(TDN_mg.L:spT, ~ mean(.x, na.rm = TRUE))) %>% 
   mutate(site_name = "Upstream Causeway",
          site_code_long = as.factor("Upstream Causeway"),
          site_abbr = as.factor("CU"),
@@ -99,6 +102,7 @@ PeakP_lab <- "Peak P (RU)"
 PeakT_lab <- "Peak T (RU)"
 S_lab <- "<i>S</i><sub>275–295</sub><br>(nm<sup>–1</sup>)"
 S_lab2 <- "<i>S</i><sub>350–400</sub> (nm<sup>–1</sup>)"
+spectral_ratio_lab <- "<i>S</i><sub><i>R</i></sub>"
 secchi_lab <- "Secchi depth (m)"
 SUVA_lab <- "SUVA<sub>254</sub><br>(L mg-C<sup>–1</sup> m<sup>–1</sup>)"
 SUVA_lab1 <- expression(paste("SUVA"[254]*" (L mg-C"^-1*" m"^-1*")"))
@@ -106,6 +110,15 @@ TDN_lab <- "TDN concentration<br>(mg L<sup>–1</sup>)"
 # TDN_lab <- expression(paste("TDN concentration (mg L"^-1*")")) 
 turb_field_lab <- expression(paste("Turbidity"[field]*" (NTU)"))
 turb_lab_lab <- expression(paste("Turbidity"[lab]*" (NTU)"))
+spA_lab <- "spA<br>(ex260/em450)"
+spB_lab <- "spB<br>(ex275/em304)"
+spC_lab <- "spC<br>(ex340/em440)"
+spD_lab <- "spD<br>(ex390/em510)"
+spE_lab <- "spE<br>(ex290/em400)" 
+spM_lab <- "spM<br>(ex300/em390)"
+spN_lab <- "spN<br>(ex280/em370)"
+spT_lab <- "spT<br>(ex275/em340)"
+
 
 
 # Histograms --------------------------------------------------------------
@@ -224,7 +237,9 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
   
   df <- eems %>% 
     mutate(distHaversine_km = distHaversine_km + 1.5) %>% 
-    pivot_longer(cols = c(TDN_mg.L:ext_coeff_m), 
+    # select(-c(Fmax, TSS_mg.L, source, site_altname, PeakA_percent:PeakT_percent,
+    #           site_num, distHaversine_m)) %>% 
+    pivot_longer(cols = c(TDN_mg.L:spT), 
                  names_to = "parameter", 
                  values_to = "result") %>% 
     mutate(parameter = factor(parameter),
@@ -235,7 +250,7 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
     mutate(lower = mean_parameter - sd_parameter,
            upper = mean_parameter + sd_parameter) %>% 
     ungroup() 
-  
+    
   p_mean_sd <- df %>% 
     filter(parameter == parm & !is.na(mean_parameter)) %>%
     # filter(parameter == parm) %>%
@@ -256,7 +271,7 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
 
 
 p_outname <- "./R_EEMs/outputs/figures/"
-dd <- "20220718_"
+dd <- "20220801_"
 
 # Water quality plots
 
@@ -309,7 +324,7 @@ ggsave(paste0(p_outname, dd, "p_abs_flor.png"), p_abs_flor, w = 8, h = 10)
 
 # spectral slope (350—400 nm) and spectral slope ratio (Appendix)
 p_m_sd_S350to400 <- plot_mean_sd(parm = "S350to400", parm_lab = S_lab2) + theme(axis.title.y = element_markdown()) + ylim(c(NA, 0.022)) + labs(x = NULL, tag = 'a')
-p_m_sd_SR <- plot_mean_sd(parm = "SR", parm_lab = "SR") + labs(tag = 'b') 
+p_m_sd_SR <- plot_mean_sd(parm = "SR", parm_lab = spectral_ratio_lab) + theme(axis.title.y = element_markdown()) + labs(tag = 'b') 
 
 p_slopes <- (p_m_sd_S350to400 / p_m_sd_SR) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 ggsave(paste0(p_outname, dd, "p_slopes.png"), p_slopes, w = 8, h = 5)
@@ -318,7 +333,7 @@ ggsave(paste0(p_outname, dd, "p_slopes.png"), p_slopes, w = 8, h = 5)
 
 # // Spectral peaks -------------------------------------------------------
 
-### Humic-like peaks A, C, M, D, E
+### Humic-like peaks (A, C, M, D, E)
 p_m_sd_PeakA <- plot_mean_sd(parm = "PeakA_RU", parm_lab = PeakA_lab) + ylim(c(0.6, 1.5)) + labs(x = NULL, tag = 'a')
 p_m_sd_PeakC <- plot_mean_sd(parm = "PeakC_RU", parm_lab = PeakC_lab) + ylim(c(0.35, NA)) + labs(x = NULL, tag = 'b')
 p_m_sd_PeakM <- plot_mean_sd(parm = "PeakM_RU", parm_lab = PeakM_lab) + labs(x = NULL, tag = 'c')
@@ -328,6 +343,15 @@ p_m_sd_PeakE <- plot_mean_sd(parm = "PeakE_RU", parm_lab = PeakE_lab) + labs(x =
 p_humic_peaks <- (p_m_sd_PeakA / p_m_sd_PeakC / p_m_sd_PeakM / p_m_sd_PeakD / p_m_sd_PeakE) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 ggsave(paste0(p_outname, dd, "p_humic_peaks.png"), p_humic_peaks, w = 8, h = 10)
 
+### Specific humic-like peaks (spA, spC, spM, spD, spE)
+p_m_sd_spA <- plot_mean_sd(parm = "spA", parm_lab = spA_lab) + ylim(c(0.10, NA)) +  theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'a')
+p_m_sd_spC <- plot_mean_sd(parm = "spC", parm_lab = spC_lab) + ylim(c(0.06, NA)) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'b')
+p_m_sd_spM <- plot_mean_sd(parm = "spM", parm_lab = spM_lab) + ylim(c(0.06, 0.16)) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'c')
+p_m_sd_spD <- plot_mean_sd(parm = "spD", parm_lab = spD_lab) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'd')
+p_m_sd_spE <- plot_mean_sd(parm = "spE", parm_lab = spE_lab) + ylim(c(NA, 0.016)) + theme(axis.title.y = element_markdown()) + labs(tag = 'e')
+
+p_humic_sp_peaks <- (p_m_sd_spA / p_m_sd_spC / p_m_sd_spM / p_m_sd_spD / p_m_sd_spE) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+ggsave(paste0(p_outname, dd, "p_humic_sp_peaks.png"), p_humic_sp_peaks, w = 8, h = 10)
 
 #
 
@@ -339,6 +363,16 @@ p_m_sd_PeakN <- plot_mean_sd(parm = "PeakN_RU", parm_lab = PeakN_lab) + ylim(c(N
 p_fresh_peaks <- (p_m_sd_PeakB / p_m_sd_PeakT / p_m_sd_PeakN) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 ggsave(paste0(p_outname, dd, "p_fresh_peaks.png"), p_fresh_peaks, w = 8, h = 6.5)
 
+### Specific fresh-like peaks (spB, spT, spN)
+p_m_sd_spB <- plot_mean_sd(parm = "spB", parm_lab = spB_lab) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'a')
+p_m_sd_spT <- plot_mean_sd(parm = "spT", parm_lab = spT_lab) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'b')
+p_m_sd_spN <- plot_mean_sd(parm = "spN", parm_lab = spN_lab) + ylim(c(0.05, 0.10)) + theme(axis.title.y = element_markdown()) + labs(tag = 'c')
+
+p_fresh_sp_peaks <- (p_m_sd_spB / p_m_sd_spT / p_m_sd_spN) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+ggsave(paste0(p_outname, dd, "p_fresh_sp_peaks.png"), p_fresh_sp_peaks, w = 8, h = 6.5)
+
+
+eems %>% select(site_code_long, date_ymd, starts_with("sp")) %>% View()
 
 #
 

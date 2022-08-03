@@ -1492,7 +1492,7 @@ eems %>%
   facet_wrap(~ Year) +
   geom_point() + 
   geom_smooth(method = 'lm') +
-  theme(legend.position = 'bottom') +
+  theme(legend.position = 'bottom', axis.title.y = element_markdown()) +
   labs(x = "Distance from Buffalo Pound Lake inflow (km)", y = DOC_lab)
 
 dd_means <- eems %>% 

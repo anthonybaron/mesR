@@ -695,7 +695,15 @@ bp_doc_eems <- function(df = bp_all(), write = FALSE, outdir = "./R_data-cleanin
            BA, FI, HIX, HIX_Ohno, S275to295, S350to400, SR, Fmax, 
            PeakA_RU, PeakB_RU, PeakC_RU, PeakD_RU, PeakE_RU, PeakM_RU, PeakN_RU, PeakP_RU, PeakT_RU,
            AT_ratio, CA_ratio, CM_ratio, CT_ratio, 
-           turb_field_NTU, turb_lab_NTU, secchi_depth_m, ext_coeff_m, TSS_mg.L, everything())
+           turb_field_NTU, turb_lab_NTU, secchi_depth_m, ext_coeff_m, TSS_mg.L, everything()) %>% 
+    mutate(spA = PeakA_RU / DOC_mg.L,
+           spB = PeakB_RU / DOC_mg.L,
+           spC = PeakC_RU / DOC_mg.L,
+           spD = PeakD_RU / DOC_mg.L,
+           spE = PeakE_RU / DOC_mg.L,
+           spM = PeakM_RU / DOC_mg.L,
+           spN = PeakN_RU / DOC_mg.L,
+           spT = PeakT_RU / DOC_mg.L)
   
   outname <- paste0(Sys.Date(), "_", "bp_DOC_EEMs_processed-select-sites.csv")
   outpath <- file.path(outdir, outname)
