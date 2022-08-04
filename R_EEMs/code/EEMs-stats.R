@@ -1124,3 +1124,145 @@ par(mfrow = c(1, 3))
 plot(fresh_peaks$spB, fresh_peaks$spT)
 plot(fresh_peaks$spB, fresh_peaks$spN)
 plot(fresh_peaks$spT, fresh_peaks$spN)
+
+
+# Correlations between DOC and distance -----------------------------------
+
+# // by year --------------------------------------------------------------
+
+eemean_year <- eems %>% 
+  select(site_code_long, site_abbr, Year, dist_km, TDN_mg.L:spT) %>%
+  pivot_longer(cols = -c(site_code_long:dist_km),
+               names_to = "parameter",
+               values_to = "result") %>% 
+  filter(!is.na(result)) %>% 
+  group_by(site_code_long, site_abbr, dist_km, Year, parameter) %>% 
+  summarise(result_mean = mean(result),
+            result_sd = sd(result)) %>% 
+  mutate(lower = result_mean - result_sd,
+         upper = result_mean + result_sd) %>% 
+  ungroup() 
+  
+colorBlindBlack8  <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+par(mfrow = c(1, 1)); pie(rep(1, 8), col = colorBlindBlack8)
+
+cbc <- c("#000000", "#009E73", "#CC79A7", "#0072B2")
+parms <- c("DOC_mg.L", "TDN_mg.L", "SUVA", "FI", "HIX_Ohno", "BA", "S275to295")
+parms_new <- c("DOC concentration", "TDN concentration", "SUVA254", "S275to295", "FI", "HIX", "BA")
+
+p_lm_means_year <- eemean_year %>% 
+  filter(parameter %in% parms) %>% 
+  mutate(parameter = 
+           case_when(
+             parameter == "DOC_mg.L" ~ "DOC concentration",
+             parameter == "TDN_mg.L" ~ "TDN concentration",
+             parameter == "SUVA" ~ "SUVA254",
+             parameter == "HIX_Ohno" ~ "HIX",
+             TRUE ~ as.character(parameter)
+           ),
+         parameter = factor(parameter, levels = parms_new)) %>% 
+  ggplot(aes(dist_km, result_mean, col = Year, shape = Year)) + 
+  facet_wrap(~ parameter, scales = "free_y", ncol = 2) +
+  xlim(c(0, 30)) +
+  # geom_errorbar(aes(ymin = lower, ymax = upper, col = Year), width = 0.33, alpha = 3/4) +
+  geom_point(aes(col = Year), size = 3, alpha = 3/4) + 
+  geom_smooth(aes(col = Year), method = 'lm', se = F) +
+  scale_color_manual(values = cbc) +
+  theme(legend.position = "bottom") +
+  labs(x = dist_lab, y = "Replicate average value")
+
+eemean_year %>% 
+  ggplot(aes(dist_km, result_mean, col = Year, shape = Year)) + 
+  facet_wrap(~ parameter, scales = "free_y") +
+  xlim(c(0, 30)) +
+  # geom_errorbar(aes(ymin = lower, ymax = upper, col = Year), width = 0.33, alpha = 3/4) +
+  geom_point(aes(col = Year), size = 1.5, alpha = 1/2) + 
+  geom_smooth(aes(col = Year), method = 'lm', se = F, size = 0.75) +
+  scale_color_manual(values = cbc) +
+  theme(legend.position = "bottom")
+
+eemean <- eems %>% 
+  select(site_code_long, site_abbr, dist_km, DOC_mg.L) %>%
+  group_by(site_code_long, site_abbr, dist_km) %>% 
+  summarise(DOC_mean = mean(DOC_mg.L, na.rm = TRUE),
+            DOC_sd = sd(DOC_mg.L, na.rm = TRUE)) %>% 
+  mutate(lower = DOC_mean - DOC_sd,
+         upper = DOC_mean + DOC_sd) %>% 
+  ungroup()
+  
+
+
+
+
+
+# // overall --------------------------------------------------------------
+
+eemean <- eems %>% 
+  select(site_code_long, site_abbr, dist_km, TDN_mg.L:spT) %>%
+  group_by(site_code_long, site_abbr, dist_km) %>% 
+  pivot_longer(cols = -c(site_code_long:dist_km),
+               names_to = "parameter",
+               values_to = "result") %>% 
+  filter(!is.na(result)) %>% 
+  group_by(site_code_long, site_abbr, dist_km, parameter) %>% 
+  summarise(result_mean = mean(result),
+            result_sd = sd(result)) %>% 
+  mutate(lower = result_mean - result_sd,
+         upper = result_mean + result_sd) %>% 
+  ungroup() 
+
+
+parms <- c("DOC_mg.L", "SUVA", "BA", "FI", "HIX_Ohno", "S275to295", "TDN_mg.L")
+
+p_lm_means <- eemean %>% 
+  filter(parameter %in% parms) %>% 
+  mutate(parameter = 
+           case_when(
+             parameter == "DOC_mg.L" ~ "DOC concentration",
+             parameter == "TDN_mg.L" ~ "TDN concentration",
+             parameter == "SUVA" ~ "SUVA254",
+             parameter == "HIX_Ohno" ~ "HIX",
+             TRUE ~ as.character(parameter)
+           ),
+         parameter = factor(parameter, levels = parms_new)) %>% 
+  ggplot(aes(dist_km, result_mean)) + 
+  facet_wrap(~ parameter, scales = "free_y", ncol = 2) +
+  xlim(c(0, 30)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.75, alpha = 3/4) +
+  geom_point(size = 3, col = "black", alpha = 3/4) + 
+  geom_smooth(method = 'lm', se = F, col = "#CC79A7") +
+  labs(x = dist_lab, y = "Replicate average value")
+
+DOC_mean <- filter(eemean, parameter == "DOC_mg.L")
+TDN_mean <- filter(eemean, parameter == "TDN_mg.L")
+SUVA_mean <- filter(eemean, parameter == "SUVA")
+S275to295_mean<- filter(eemean, parameter == "S275to295")
+FI_mean <- filter(eemean, parameter == "FI")
+HIX_mean <- filter(eemean, parameter == "HIX_Ohno")
+BA_mean <- filter(eemean, parameter == "BA")
+
+DOC_lm <- lm(DOC_mean$result_mean ~ DOC_mean$dist_km)
+TDN_lm <- lm(TDN_mean$result_mean ~ TDN_mean$dist_km)
+SUVA_lm <- lm(SUVA_mean$result_mean ~ SUVA_mean$dist_km)
+S275to295_lm <- lm(S275to295_mean$result_mean ~ S275to295_mean$dist_km)
+FI_lm <- lm(FI_mean$result_mean ~ FI_mean$dist_km)
+HIX_lm <- lm(HIX_mean$result_mean ~ HIX_mean$dist_km)
+BA_lm <- lm(BA_mean$result_mean ~ HIX_mean$dist_km)
+
+summary(DOC_lm) # DOC_mg.L = 0.037819*dist_km + 4.976361, R2 = 0.941, p = 4.115e-05
+summary(TDN_lm) # TDN_mg.L = 0.0047270*dist_km + 0.3383023, R2 = 0.9467, p = 3.039e-05
+summary(SUVA_lm) # SUVA = —0.01848*dist_km + 2.29563, R2 = 0.9674, p = 6.897e-06
+summary(S275to295_lm) # S275to295 = 0.00008951*dist_km + 0.02205, R2 = 0.9823, p = 1.106e-06
+summary(FI_lm) # FI = 0.0018961*dist_km + 1.5434070, R2 = 0.9535, p = 2.008e-05
+summary(HIX_lm) # HIX = —0.0010165*dist_km + 0.8395875, R2 = 0.8682, p = 0.0004708
+summary(BA_lm) # BA = 0.001961*dist_km + 0.745886, R2 = 0.9353, p = 5.453e-05
+
+p_lm_means_year
+p_lm_means
+
+p_outname <- "./R_EEMs/outputs/figures/"
+dd <- "20220803_"
+
+ggsave(paste0(p_outname, dd, "p_lm_means_year.png"), p_lm_means_year, w = 8, h = 9)
+ggsave(paste0(p_outname, dd, "p_lm_means.png"), p_lm_means, w = 8, h = 9)
