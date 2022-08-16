@@ -9,6 +9,8 @@ library(ggtext)
 library(purrr)
 
 theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank()))
+p_outname <- "./R_EEMs/outputs/figures/"
+dd <- "20220808_"
 
 source("./R_data-cleaning/EEMs/code/clean-EEMs.R")
 eems_all <- bp_doc_eems() %>% 
@@ -28,17 +30,20 @@ A350_lab <- expression(paste("A"[350]*""))
 A440_lab <- expression(paste("A"[440]*""))
 AT_ratio_lab <- "Peak A:Peak T"
 BA_lab <- "Freshness index<br>(<i>&beta;<i/>:<i>&alpha;<i/>)"
-BA_lab1 <- expression(paste("Freshness index (", italic(β), ":", italic(α), ")"))
+BA_lab1 <- "Freshness index (<i>&beta;<i/>:<i>&alpha;<i/>)"
 Chla_lab <- expression(paste("Chl ", italic(a), " (µg L"^-1*")")) 
 CA_ratio_lab <- "Peak C:Peak A"
 CM_ratio_lab <- "Peak C:Peak M"
 CT_ratio_lab <- "Peak C:Peak T"
 dist_lab <- "Distance from Buffalo Pound Lake inflow (km)"
-DOC_lab <- "DOC concentration (mg L<sup>–1</sup>)"
+DOC_lab <- "DOC concentration<br>(mg L<sup>–1</sup>)"
+DOC_lab1 <- "DOC concentration (mg L<sup>–1</sup>)"
 # DOC_lab <- expression(paste("DOC concentration (mg L"^-1*")")) 
 extinction_coefficient_lab <- expression(paste("k"[T]*" (m"^-1*")"))
 FI_lab <- "Fluorescence index<br>(FI)"
+FI_lab1 <- "Fluorescence index (FI)"
 HIX_lab <- "Humification index<br>(HIX)"
+HIX_lab1 <- "Humification index (HIX)"
 PeakA_lab <- "Peak A (RU)"
 PeakB_lab <- "Peak B (RU)"
 PeakC_lab <- "Peak C (RU)"
@@ -49,11 +54,13 @@ PeakN_lab <- "Peak N (RU)"
 PeakP_lab <- "Peak P (RU)"
 PeakT_lab <- "Peak T (RU)"
 S_lab <- "<i>S</i><sub>275–295</sub><br>(nm<sup>–1</sup>)"
+S_lab1 <- "<i>S</i><sub>275–295</sub> (nm<sup>–1</sup>)"
 S_lab2 <- "<i>S</i><sub>350–400</sub> (nm<sup>–1</sup>)"
 secchi_lab <- "Secchi depth (m)"
 SUVA_lab <- "SUVA<sub>254</sub><br>(L mg-C<sup>–1</sup> m<sup>–1</sup>)"
-SUVA_lab1 <- expression(paste("SUVA"[254]*" (L mg-C"^-1*" m"^-1*")"))
+SUVA_lab1 <- "SUVA<sub>254</sub> (L mg-C<sup>–1</sup> m<sup>–1</sup>)"
 TDN_lab <- "TDN concentration<br>(mg L<sup>–1</sup>)"
+TDN_lab1 <- "TDN concentration (mg L<sup>–1</sup>)"
 # TDN_lab <- expression(paste("TDN concentration (mg L"^-1*")")) 
 turb_field_lab <- expression(paste("Turbidity"[field]*" (NTU)"))
 turb_lab_lab <- expression(paste("Turbidity"[lab]*" (NTU)"))
@@ -793,7 +800,7 @@ ttest_res <- eeavg %>%
 write_csv(ttest_res, "./R_EEMs/outputs/data/eems-seasonal-ttest.csv")
 
 
-ttest_res %>% filter(grepl("sp", parameter)) %>% View()
+ttest_res %>% filter(grepl("sp", parameter))
 
 # Lab turbidity effect size
 eeavg %>% 
@@ -1166,11 +1173,45 @@ p_lm_means_year <- eemean_year %>%
   facet_wrap(~ parameter, scales = "free_y", ncol = 2) +
   xlim(c(0, 30)) +
   # geom_errorbar(aes(ymin = lower, ymax = upper, col = Year), width = 0.33, alpha = 3/4) +
-  geom_point(aes(col = Year), size = 3, alpha = 3/4) + 
+  geom_point(aes(col = Year), size = 2, alpha = 3/4) + 
   geom_smooth(aes(col = Year), method = 'lm', se = F) +
   scale_color_manual(values = cbc) +
   theme(legend.position = "bottom") +
   labs(x = dist_lab, y = "Replicate average value")
+
+plot_lm_year <- function(parm = "", parm_lab = "") {
+  
+  parms <- c("DOC_mg.L", "SUVA", "BA", "FI", "HIX_Ohno", "S275to295", "TDN_mg.L")
+  
+  p <- eemean_year %>%  
+    filter(parameter == parm) %>%
+    add_row(Year = "2016", parameter = "TDN_mg.L", result_mean = NA) %>% 
+    add_row(Year = "2019", parameter = "TDN_mg.L", result_mean = NA) %>% 
+    ggplot(aes(dist_km, result_mean, col = Year, shape = Year)) + 
+    xlim(c(0, 30)) +
+    geom_point(aes(col = Year), size = 2, alpha = 3/4) + 
+    geom_smooth(aes(col = Year), method = 'lm', se = F) +
+    scale_color_manual(values = cbc) +
+    theme(legend.position = "bottom",
+          axis.title.y = element_markdown(),
+          plot.tag = element_text(face = "bold")) +
+    labs(x = dist_lab, y = parm_lab)
+  
+  return(p)
+  
+}
+
+p_DOC_lm_year <- plot_lm_year(parm = "DOC_mg.L", parm_lab = DOC_lab) + labs(x = NULL, tag = "a") + lims(y = c(4, NA))
+p_TDN_lm_year <- plot_lm_year(parm = "TDN_mg.L", parm_lab = TDN_lab) + labs(x = NULL, tag = "b") + lims(y = c(NA, 0.50))
+p_SUVA_lm_year <- plot_lm_year(parm = "SUVA", parm_lab = SUVA_lab) + labs(x = NULL, tag = "c") + lims(y = c(1.50, NA)) + theme(legend.position = "none")
+p_SS_lm_year <- plot_lm_year(parm = "S275to295", parm_lab = S_lab) + labs(x = NULL, tag = "d") + lims(y = c(0.020, 0.026))
+p_FI_lm_year <- plot_lm_year(parm = "FI", parm_lab = FI_lab) + labs(x = NULL, tag = "e") + lims(y = c(1.50, 1.62))
+p_HIX_lm_year <- plot_lm_year(parm = "HIX_Ohno", parm_lab = HIX_lab) + labs(tag = "f") + lims(y = c(NA, 0.875))
+p_BA_lm_year <- plot_lm_year(parm = "BA", parm_lab = BA_lab) + labs(tag = "g") + scale_y_continuous(breaks = c(0.72, 0.75, 0.78, 0.81), labels = c(0.72, 0.75, 0.78, 0.81))
+
+p_lm_year <- (p_DOC_lm_year + p_TDN_lm_year + p_SUVA_lm_year + p_SS_lm_year + p_FI_lm_year + p_HIX_lm_year + p_BA_lm_year + plot_layout(ncol = 2)) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
+ggsave(paste0(p_outname, dd, "p_lm_year.png"), p_lm_year, w = 8.5, h = 9.25)
+
 
 eemean_year %>% 
   ggplot(aes(dist_km, result_mean, col = Year, shape = Year)) + 
@@ -1182,15 +1223,92 @@ eemean_year %>%
   scale_color_manual(values = cbc) +
   theme(legend.position = "bottom")
 
-eemean <- eems %>% 
-  select(site_code_long, site_abbr, dist_km, DOC_mg.L) %>%
-  group_by(site_code_long, site_abbr, dist_km) %>% 
-  summarise(DOC_mean = mean(DOC_mg.L, na.rm = TRUE),
-            DOC_sd = sd(DOC_mg.L, na.rm = TRUE)) %>% 
-  mutate(lower = DOC_mean - DOC_sd,
-         upper = DOC_mean + DOC_sd) %>% 
-  ungroup()
-  
+eee16 <- filter(eemean_year, Year == "2016", parameter %in% parms)
+eee17 <- filter(eemean_year, Year == "2017", parameter %in% parms)
+eee18 <- filter(eemean_year, Year == "2018", parameter %in% parms)
+eee19 <- filter(eemean_year, Year == "2019", parameter %in% parms)
+
+eemean_year %>% 
+  select(dist_km, Year, parameter, result_mean) %>% 
+  group_split(Year, parameter) %>% 
+  map(~ lm(eemean_year$result_mean ~ eemean_year$dist_km))
+
+eee <- eemean_year %>% 
+  filter(parameter %in% parms) %>% 
+  select(dist_km, Year, parameter, result_mean) %>% 
+  pivot_wider(id_cols = c(Year, dist_km),
+              names_from = parameter,
+              values_from = result_mean)
+
+eee_doc <- select(eee, Year, dist_km, DOC_mg.L)
+eee_tdn <- select(eee, Year, dist_km, TDN_mg.L) %>% filter(!is.na(TDN_mg.L))
+eee_suva <- select(eee, Year, dist_km, SUVA) 
+eee_ss <- select(eee, Year, dist_km, S275to295)
+eee_fi <- select(eee, Year, dist_km, FI)
+eee_hix <- select(eee, Year, dist_km, HIX_Ohno) %>% rename(HIX = HIX_Ohno)
+eee_ba <- select(eee, Year, dist_km, BA)
+
+doc16 <- filter(eee_doc, Year == 2016)
+doc17 <- filter(eee_doc, Year == 2017)
+doc18 <- filter(eee_doc, Year == 2018)
+doc19 <- filter(eee_doc, Year == 2019)
+tdn17 <- filter(eee_tdn, Year == 2017)
+tdn18 <- filter(eee_tdn, Year == 2018)
+suva16 <- filter(eee_suva, Year == 2016)
+suva17 <- filter(eee_suva, Year == 2017)
+suva18 <- filter(eee_suva, Year == 2018)
+suva19 <- filter(eee_suva, Year == 2019)
+ss16 <- filter(eee_ss, Year == 2016)
+ss17 <- filter(eee_ss, Year == 2017)
+ss18 <- filter(eee_ss, Year == 2018)
+ss19 <- filter(eee_ss, Year == 2019)
+fi16 <- filter(eee_fi, Year == 2016)
+fi17 <- filter(eee_fi, Year == 2017)
+fi18 <- filter(eee_fi, Year == 2018)
+fi19 <- filter(eee_fi, Year == 2019)
+hix16 <- filter(eee_hix, Year == 2016)
+hix17 <- filter(eee_hix, Year == 2017)
+hix18 <- filter(eee_hix, Year == 2018)
+hix19 <- filter(eee_hix, Year == 2019)
+ba16 <- filter(eee_ba, Year == 2016)
+ba17 <- filter(eee_ba, Year == 2017)
+ba18 <- filter(eee_ba, Year == 2018)
+ba19 <- filter(eee_ba, Year == 2019)
+
+library(broom)
+
+tidy(lm(DOC_mg.L ~ dist_km, data = doc16)); glance(lm(DOC_mg.L ~ dist_km, data = doc16)) 
+tidy(lm(DOC_mg.L ~ dist_km, data = doc17)); glance(lm(DOC_mg.L ~ dist_km, data = doc17))  
+tidy(lm(DOC_mg.L ~ dist_km, data = doc18)); glance(lm(DOC_mg.L ~ dist_km, data = doc18)) 
+tidy(lm(DOC_mg.L ~ dist_km, data = doc19)); glance(lm(DOC_mg.L ~ dist_km, data = doc19)) 
+
+tidy(lm(TDN_mg.L ~ dist_km, data = tdn17)); glance(lm(TDN_mg.L ~ dist_km, data = tdn17)) 
+tidy(lm(TDN_mg.L ~ dist_km, data = tdn18)); glance(lm(TDN_mg.L ~ dist_km, data = tdn18)) 
+
+tidy(lm(SUVA ~ dist_km, data = suva16)); glance(lm(SUVA ~ dist_km, data = suva16)) 
+tidy(lm(SUVA ~ dist_km, data = suva17)); glance(lm(SUVA ~ dist_km, data = suva17))  
+tidy(lm(SUVA ~ dist_km, data = suva18)); glance(lm(SUVA ~ dist_km, data = suva18)) 
+tidy(lm(SUVA ~ dist_km, data = suva19)); glance(lm(SUVA ~ dist_km, data = suva19)) 
+
+tidy(lm(S275to295 ~ dist_km, data = ss16)); glance(lm(S275to295 ~ dist_km, data = ss16)) 
+tidy(lm(S275to295 ~ dist_km, data = ss17)); glance(lm(S275to295 ~ dist_km, data = ss17))  
+tidy(lm(S275to295 ~ dist_km, data = ss18)); glance(lm(S275to295 ~ dist_km, data = ss18)) 
+tidy(lm(S275to295 ~ dist_km, data = ss19)); glance(lm(S275to295 ~ dist_km, data = ss19)) 
+
+tidy(lm(FI ~ dist_km, data = fi16)); glance(lm(FI ~ dist_km, data = fi16)) 
+tidy(lm(FI ~ dist_km, data = fi17)); glance(lm(FI ~ dist_km, data = fi17))  
+tidy(lm(FI ~ dist_km, data = fi18)); glance(lm(FI ~ dist_km, data = fi18)) 
+tidy(lm(FI ~ dist_km, data = fi19)); glance(lm(FI ~ dist_km, data = fi19)) 
+
+tidy(lm(HIX ~ dist_km, data = hix16)); glance(lm(HIX ~ dist_km, data = hix16)) 
+tidy(lm(HIX ~ dist_km, data = hix17)); glance(lm(HIX ~ dist_km, data = hix17))  
+tidy(lm(HIX ~ dist_km, data = hix18)); glance(lm(HIX ~ dist_km, data = hix18)) 
+tidy(lm(HIX ~ dist_km, data = hix19)); glance(lm(HIX ~ dist_km, data = hix19)) 
+
+tidy(lm(BA ~ dist_km, data = ba16)); glance(lm(BA ~ dist_km, data = ba16)) 
+tidy(lm(BA ~ dist_km, data = ba17)); glance(lm(BA ~ dist_km, data = ba17))  
+tidy(lm(BA ~ dist_km, data = ba18)); glance(lm(BA ~ dist_km, data = ba18)) 
+tidy(lm(BA ~ dist_km, data = ba19)); glance(lm(BA ~ dist_km, data = ba19)) 
 
 
 
@@ -1212,6 +1330,18 @@ eemean <- eems %>%
          upper = result_mean + result_sd) %>% 
   ungroup() 
 
+eems %>% 
+  select(site_code_long, site_abbr, dist_km, TDN_mg.L:spT) %>%
+  group_by(site_code_long, site_abbr, dist_km) %>% 
+  pivot_longer(cols = -c(site_code_long:dist_km),
+               names_to = "parameter",
+               values_to = "result") %>% 
+  filter(!is.na(result), parameter %in% parms) %>% 
+  select(site_abbr, parameter, result) %>% 
+  group_by(site_abbr, parameter) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n))
+
 
 parms <- c("DOC_mg.L", "SUVA", "BA", "FI", "HIX_Ohno", "S275to295", "TDN_mg.L")
 
@@ -1231,13 +1361,44 @@ p_lm_means <- eemean %>%
   xlim(c(0, 30)) +
   geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.75, alpha = 3/4) +
   geom_point(size = 3, col = "black", alpha = 3/4) + 
-  geom_smooth(method = 'lm', se = F, col = "#CC79A7") +
+  geom_smooth(method = 'lm', se = F, col = "#CC79A7", size = 1) +
   labs(x = dist_lab, y = "Replicate average value")
+
+plot_lm <- function(parm = "", parm_lab = "") {
+  
+  parms <- c("DOC_mg.L", "SUVA", "BA", "FI", "HIX_Ohno", "S275to295", "TDN_mg.L")
+  
+  p <- eemean %>% 
+    filter(parameter == parm & !is.na(result_mean)) %>%
+    ggplot(aes(dist_km, result_mean)) + 
+    xlim(c(0, 30)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.75, alpha = 3/4) +
+    geom_point(size = 3, col = "black", alpha = 3/4) + 
+    geom_smooth(method = 'lm', se = F, col = "#CC79A7", size = 1) +
+    theme(axis.title.y = element_markdown(),
+          plot.tag = element_text(face = "bold")) +
+    labs(x = dist_lab, y = parm_lab)
+  
+  return(p)
+  
+}
+
+p_DOC_lm <- plot_lm(parm = "DOC_mg.L", parm_lab = DOC_lab) + labs(x = NULL, tag = "a")
+p_TDN_lm <- plot_lm(parm = "TDN_mg.L", parm_lab = TDN_lab) + labs(x = NULL, tag = "b")
+p_SUVA_lm <- plot_lm(parm = "SUVA", parm_lab = SUVA_lab) + labs(x = NULL, tag = "c")
+p_SS_lm <- plot_lm(parm = "S275to295", parm_lab = S_lab) + labs(x = NULL, tag = "d")
+p_FI_lm <- plot_lm(parm = "FI", parm_lab = FI_lab) + labs(x = NULL, tag = "e")
+p_HIX_lm <- plot_lm(parm = "HIX_Ohno", parm_lab = HIX_lab) + labs(tag = "f")
+p_BA_lm <- plot_lm(parm = "BA", parm_lab = BA_lab) + labs(tag = "g")
+
+p_lm <- p_DOC_lm + p_TDN_lm + p_SUVA_lm + p_SS_lm + p_FI_lm + p_HIX_lm + p_BA_lm + plot_layout(ncol = 2)
+ggsave(paste0(p_outname, dd, "p_lm.png"), p_lm, w = 8.5, h = 9.25)
+
 
 DOC_mean <- filter(eemean, parameter == "DOC_mg.L")
 TDN_mean <- filter(eemean, parameter == "TDN_mg.L")
 SUVA_mean <- filter(eemean, parameter == "SUVA")
-S275to295_mean<- filter(eemean, parameter == "S275to295")
+S275to295_mean <- filter(eemean, parameter == "S275to295")
 FI_mean <- filter(eemean, parameter == "FI")
 HIX_mean <- filter(eemean, parameter == "HIX_Ohno")
 BA_mean <- filter(eemean, parameter == "BA")
@@ -1260,9 +1421,6 @@ summary(BA_lm) # BA = 0.001961*dist_km + 0.745886, R2 = 0.9353, p = 5.453e-05
 
 p_lm_means_year
 p_lm_means
-
-p_outname <- "./R_EEMs/outputs/figures/"
-dd <- "20220803_"
 
 ggsave(paste0(p_outname, dd, "p_lm_means_year.png"), p_lm_means_year, w = 8, h = 9)
 ggsave(paste0(p_outname, dd, "p_lm_means.png"), p_lm_means, w = 8, h = 9)
