@@ -10,7 +10,7 @@ library(purrr)
 
 theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank()))
 p_outname <- "./R_EEMs/outputs/figures/"
-dd <- "20220808_"
+dd <- "20220818_"
 
 source("./R_data-cleaning/EEMs/code/clean-EEMs.R")
 eems_all <- bp_doc_eems() %>% 
@@ -123,7 +123,7 @@ p_inflow_hix <- inflow %>%
 
 p_anova <- ((p_inflow_doc + p_inflow_suva) / (p_inflow_ba + p_inflow_hix)) + plot_layout(guides = 'collect') & theme(legend.position = "bottom")
 
-ggsave("./R_EEMs/outputs/figures/20220801_p_anova.png", p_anova, w = 9, h = 8.1)
+# ggsave("./R_EEMs/outputs/figures/20220801_p_anova.png", p_anova, w = 9, h = 8.1)
 
 p_inflow_year <- inflow %>% 
   mutate(`Day of year` = DOY) %>% 
@@ -134,8 +134,6 @@ p_inflow_year <- inflow %>%
   scale_color_viridis_c(end = 0.8) +
   theme(legend.position = "bottom") +
   labs(x = NULL, y = DOC_lab)
-
-p_inflow + p_inflow_year
 
 
 inflow %>% 
@@ -267,7 +265,7 @@ p_causeway_hix <- causeway %>%
 
 p_t_test <- ((p_causeway_doc + p_causeway_suva) / (p_causeway_ba + p_causeway_hix)) + plot_layout(guides = 'collect') & theme(legend.position = "bottom")
 
-ggsave("./R_EEMs/outputs/figures/20220801_p_t_test.png", p_t_test, w = 8, h = 6.5)
+# ggsave("./R_EEMs/outputs/figures/20220801_p_t_test.png", p_t_test, w = 8, h = 6.5)
 
 causeway %>% 
   pivot_longer(cols = -c(site_code_long, Year, date_ymd),
@@ -399,7 +397,7 @@ eems <- eems %>%
 # Histograms --------------------------------------------------------------
 
 eems_long <- eems %>% 
-  select(-c(site_name:dist_km, distHaversine_km)) %>% 
+  select(-c(site_name:dist_km)) %>% 
   pivot_longer(cols = everything(), names_to = "parameter", values_to = "result") %>% 
   filter(!is.na(result)) 
 
@@ -545,14 +543,12 @@ eems_summary_stats <- eems_long %>%
   group_by(parameter) %>% 
   get_summary_stats(type = "full")
 
-write_csv(eems_summary_stats, "./R_EEMs/outputs/data/20220718_eems-summary-stats.csv")
+# write_csv(eems_summary_stats, "./R_EEMs/outputs/data/20220718_eems-summary-stats.csv")
 
 
 # by site
 eems_long_site <- eems %>% 
-  select(-c(site_name, site_code_long, date_ymd:distHaversine_km, distHaversine_m, site_num, HIX, Fmax,
-            TSS_mg.L, source, site_altname, PeakP_RU, dist_km)) %>% 
-  select(!contains("percent")) %>% 
+  select(-c(site_name, site_code_long, date_ymd:dist_km, PeakP_RU)) %>% 
   pivot_longer(cols = -site_abbr, names_to = "parameter", values_to = "result") %>% 
   filter(!is.na(result)) 
 
@@ -568,8 +564,7 @@ eems_summary_stats_site <- eems_summary_stats_site %>% left_join(eems_dist) %>%
 eems_summary_stats_site %>% select(-c(variable, q1, q3, iqr, mad, se, ci)) 
 
 # by year
-eems_long_year
-eems %>% 
+eems_long_year <- eems %>% 
   select(-c(site_name, site_code_long, Month:dist_km)) %>% 
   pivot_longer(cols = -c(site_abbr, date_ymd, Year), names_to = "parameter", values_to = "result") %>% 
   filter(!is.na(result)) %>% 
@@ -777,7 +772,7 @@ eeavg <- ee_seasons %>%
          logPeakT_RU = log(PeakT_RU),
          log_turb_field = log(turb_field_NTU),
          log_turb_lab = log(turb_lab_NTU)) %>% 
-  select(-c(site_name, Month, DOY, latitude, longitude, source, site_altname)) %>% 
+  select(-c(site_name, Month, DOY, latitude, longitude)) %>% 
   pivot_longer(cols = -c(site_code_long, site_abbr, date_ymd, Year, dist_km, Season),
                names_to = "parameter",
                values_to = "result") %>% 
@@ -793,11 +788,11 @@ seasonal_summary <- eeavg %>%
 
 ttest_res <- eeavg %>%
   group_by(parameter) %>% 
-  t_test(parameter_mean ~ Season, p.adjust.method = 'bonferroni', detailed = TRUE) %>% 
+  t_test(parameter_mean ~ Season, p.adjust.method = 'fdr', detailed = TRUE) %>% 
   add_significance() %>% 
-  select(-c(.y., ))
+  select(-c(.y., )) 
 
-write_csv(ttest_res, "./R_EEMs/outputs/data/eems-seasonal-ttest.csv")
+write_csv(ttest_res, "./R_EEMs/outputs/data/eems-seasonal-ttest-fdr.csv")
 
 
 ttest_res %>% filter(grepl("sp", parameter))
@@ -890,7 +885,7 @@ ee_seasons_avg <- ee_seasons %>%
 ee_seasons_avg %>%
   ungroup() %>%  
   mutate(Season = factor(Season)) %>% 
-  t_test(formula = DOC_mg.L ~ Season, p.adjust.method = 'bonferroni', detailed = TRUE)
+  t_test(formula = DOC_mg.L ~ Season, p.adjust.method = 'FDR', detailed = TRUE)
 
 ggpubr::ggpaired(ee_seasons_avg, x = "Season", y = "DOC_mg.L",
                  order = c("Spring", "Summer"),
@@ -925,8 +920,7 @@ log_parms_cc <- log_parms_c %>% mutate(parameter = str_remove(parameter, "log_")
 log_parms_cc <- log_parms_cc[["parameter"]]
 
 eems_trans_wide <- eems %>% 
-  select(-c(site_name, latitude, longitude, HIX, Fmax, source, site_num, site_altname, distHaversine_km, distHaversine_m)) %>% 
-  select(-contains("percent")) %>% 
+  select(-c(site_name, date_ymd:longitude)) %>% 
   mutate(across(c(log_parms_cc), ~ log(.x)))
   
   
@@ -942,7 +936,7 @@ summary(lm(TDN_mg.L ~ dist_km, data = ttt))
 
 
 eems_mean_long <- eems_trans_wide %>% 
-  select(-c(site_code_long, date_ymd, Year, Month, DOY)) %>% 
+  select(-c(site_code_long)) %>%
   pivot_longer(cols = -c(site_abbr, dist_km),
                names_to = "parameter", 
                values_to = "result") %>% 
@@ -955,8 +949,10 @@ eems_mean_long %>%
   facet_wrap(~ parameter, scales = "free_y") + 
   geom_smooth(method = 'loess', se = F, col = "grey70", size = 1) +
   geom_point(size = 2) + 
-  scale_color_viridis_d(option = "virids", end = 0.8) + 
+  scale_color_viridis_d(option = "viridis", end = 0.8) + 
   theme(legend.position = "bottom")
+
+
 
 lmfit1 <- eems_mean_long %>% 
   split(.$parameter) %>% 
@@ -973,6 +969,7 @@ lmfit2 <- eems_mean_long %>%
   map(~ lm(result_mean ~ dist_km, data = .)) %>% 
   map(summary) %>%
   map_dfr("r.squared") %>% 
+  mutate(TSS_mg.L = NA) %>% 
   pivot_longer(cols = -TSS_mg.L, names_to = "parameter", values_to = "r_squared") %>% 
   select(-TSS_mg.L)
   
@@ -989,6 +986,8 @@ eems_mean_long %>%
   geom_point(size = 2) + 
   scale_color_viridis_d(option = "virids", end = 0.8) + 
   theme(legend.position = "bottom")
+
+
 
 
 # Correlations between specific fluorescence peaks ------------------------
@@ -1210,7 +1209,7 @@ p_HIX_lm_year <- plot_lm_year(parm = "HIX_Ohno", parm_lab = HIX_lab) + labs(tag 
 p_BA_lm_year <- plot_lm_year(parm = "BA", parm_lab = BA_lab) + labs(tag = "g") + scale_y_continuous(breaks = c(0.72, 0.75, 0.78, 0.81), labels = c(0.72, 0.75, 0.78, 0.81))
 
 p_lm_year <- (p_DOC_lm_year + p_TDN_lm_year + p_SUVA_lm_year + p_SS_lm_year + p_FI_lm_year + p_HIX_lm_year + p_BA_lm_year + plot_layout(ncol = 2)) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
-ggsave(paste0(p_outname, dd, "p_lm_year.png"), p_lm_year, w = 8.5, h = 9.25)
+# ggsave(paste0(p_outname, dd, "p_lm_year.png"), p_lm_year, w = 8.5, h = 9.25)
 
 
 eemean_year %>% 
@@ -1383,16 +1382,46 @@ plot_lm <- function(parm = "", parm_lab = "") {
   
 }
 
-p_DOC_lm <- plot_lm(parm = "DOC_mg.L", parm_lab = DOC_lab) + labs(x = NULL, tag = "a")
-p_TDN_lm <- plot_lm(parm = "TDN_mg.L", parm_lab = TDN_lab) + labs(x = NULL, tag = "b")
-p_SUVA_lm <- plot_lm(parm = "SUVA", parm_lab = SUVA_lab) + labs(x = NULL, tag = "c")
-p_SS_lm <- plot_lm(parm = "S275to295", parm_lab = S_lab) + labs(x = NULL, tag = "d")
-p_FI_lm <- plot_lm(parm = "FI", parm_lab = FI_lab) + labs(x = NULL, tag = "e")
-p_HIX_lm <- plot_lm(parm = "HIX_Ohno", parm_lab = HIX_lab) + labs(tag = "f")
-p_BA_lm <- plot_lm(parm = "BA", parm_lab = BA_lab) + labs(tag = "g")
+eq_DOC <- annotate("text", x = 22, y = 4.55, parse = TRUE,
+                     label = "italic(y)==0.037819 * italic(x) + 4.98", size = 3.8)
+eq_TDN <- annotate("text", x = 22, y = 0.295, parse = TRUE,
+                   label = "italic(y)==0.004727 * italic(x) + 0.338", size = 3.8)
+eq_SUVA <- annotate("text", x = 22, y = 2.5, parse = TRUE,
+                    label = "italic(y)==-0.01848 * italic(x) + 2.3", size = 3.8)
+eq_S <- annotate("text", x = 10, y = 0.0256, parse = TRUE,
+                 label = "italic(y)=='0.00008951' * italic(x) + 0.02205", size = 3.8)
+eq_FI <- annotate("text", x = 22, y = 1.535, parse = TRUE,
+                  label = "italic(y)==0.0018961 * italic(x) + 1.54", size = 3.8)
+eq_HIX <- annotate("text", x = 21, y = 0.87, parse = TRUE,
+                   label = "italic(y)==-0.0010165 * italic(x) + 0.84", size = 3.8)
+eq_BA <- annotate("text", x = 21, y = 0.737, parse = TRUE,
+                  label = "italic(y)==0.001961 * italic(x) + 0.746", size = 3.8)
+
+r2_DOC <- annotate("text", x = 22, y = 4.2, parse = TRUE,
+           label = "italic(R)^{2}==0.94", size = 3.8)
+r2_TDN <- annotate("text", x = 22, y = 0.265, parse = TRUE,
+                   label = "italic(R)^{2}==0.95", size = 3.8)
+r2_SUVA <- annotate("text", x = 22, y = 2.4, parse = TRUE,
+                    label = "italic(R)^{2}==0.97", size = 3.8)
+r2_S <- annotate("text", x = 8, y = 0.025, parse = TRUE,
+                 label = "italic(R)^{2}==0.98", size = 3.8)
+r2_FI <- annotate("text", x = 22, y = 1.522, parse = TRUE,
+                  label = "italic(R)^{2}==0.95", size = 3.8)
+r2_HIX <- annotate("text", x = 21, y = 0.858, parse = TRUE,
+                   label = "italic(R)^{2}==0.87", size = 3.8)
+r2_BA <- annotate("text", x = 22, y = 0.725, parse = TRUE,
+                  label = "italic(R)^{2}==0.94", size = 3.8)
+
+p_DOC_lm <- plot_lm(parm = "DOC_mg.L", parm_lab = DOC_lab) + labs(x = NULL, tag = "a") + eq_DOC + r2_DOC
+p_TDN_lm <- plot_lm(parm = "TDN_mg.L", parm_lab = TDN_lab) + labs(x = NULL, tag = "b") + eq_TDN + r2_TDN
+p_SUVA_lm <- plot_lm(parm = "SUVA", parm_lab = SUVA_lab) + labs(x = NULL, tag = "c") + eq_SUVA + r2_SUVA
+p_SS_lm <- plot_lm(parm = "S275to295", parm_lab = S_lab) + labs(x = NULL, tag = "d") + eq_S + r2_S
+p_FI_lm <- plot_lm(parm = "FI", parm_lab = FI_lab) + labs(x = NULL, tag = "e") + eq_FI + r2_FI
+p_HIX_lm <- plot_lm(parm = "HIX_Ohno", parm_lab = HIX_lab) + labs(tag = "f") + eq_HIX + r2_HIX
+p_BA_lm <- plot_lm(parm = "BA", parm_lab = BA_lab) + labs(tag = "g") + eq_BA + r2_BA
 
 p_lm <- p_DOC_lm + p_TDN_lm + p_SUVA_lm + p_SS_lm + p_FI_lm + p_HIX_lm + p_BA_lm + plot_layout(ncol = 2)
-ggsave(paste0(p_outname, dd, "p_lm.png"), p_lm, w = 8.5, h = 9.25)
+ggsave(paste0(p_outname, dd, "p_lm.png"), p_lm, w = 8.5, h = 10.5)
 
 
 DOC_mean <- filter(eemean, parameter == "DOC_mg.L")
