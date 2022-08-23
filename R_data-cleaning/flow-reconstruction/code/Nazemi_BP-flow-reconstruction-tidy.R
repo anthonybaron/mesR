@@ -172,7 +172,7 @@ station_flow_long %>%
 
 
 station_flow_long %>% 
-  filter(Station == "SK05JG014_cms") %>% View()
+  filter(Station == "SK05JG014_cms")
 
 station_flow_long %>% 
   filter(Station == "SK05JG014_cms") %>% 

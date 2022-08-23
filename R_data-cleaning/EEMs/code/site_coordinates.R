@@ -91,8 +91,24 @@ site_coords_wip <- function() { ##### coords taken from BuffalloPound_DOM_AllDat
   
 }
 
-# scwip <- site_coords_wip()
+scwip <- site_coords_wip()
+scwip$dist_km <- scwip$distHaversine_km + 1.5
 # write_csv(scwip, paste0(getwd(), "/R_data-cleaning/EEMs/data/clean/site_coordinates.csv"))
 
+ifl <- subset(scwip, grepl("inflow", site_code_long, ignore.case = TRUE))
 
+ifl_lat <- summarise(ifl, latitude = mean(latitude))
+ifl_long <- summarise(ifl, longitude = mean(longitude))
+# 50.73555, —105.6265
 
+ifl_dist <- summarise(ifl, dist_km = mean(dist_km))
+# 1.71 km
+
+cwy <- subset(scwip, grepl("upstream of causeway", site_name, ignore.case = TRUE))
+
+cwy_lat <- summarise(cwy, latitude = mean(latitude))
+cwy_long <- summarise(cwy, longitude = mean(longitude))
+# 50.72187, —105.6014
+
+cwy_dist <- summarise(cwy, dist_km = mean(dist_km))
+# 3.75 km

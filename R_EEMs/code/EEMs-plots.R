@@ -236,7 +236,7 @@ bp_select_sites %>%
 plot_mean_sd <- function(parm = "", parm_lab = "") { 
   
   df <- eems %>% 
-    mutate(distHaversine_km = distHaversine_km + 1.5) %>% 
+    # mutate(distHaversine_km = distHaversine_km + 1.5) %>% 
     # select(-c(Fmax, TSS_mg.L, source, site_altname, PeakA_percent:PeakT_percent,
     #           site_num, distHaversine_m)) %>% 
     pivot_longer(cols = c(TDN_mg.L:spT), 
@@ -244,7 +244,7 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
                  values_to = "result") %>% 
     mutate(parameter = factor(parameter),
            Site = site_code_long) %>% 
-    group_by(Site, site_abbr, Year, distHaversine_km, parameter) %>% 
+    group_by(Site, site_abbr, Year, dist_km, parameter) %>% 
     summarise(mean_parameter = mean(result, na.rm = TRUE),
               sd_parameter = sd(result, na.rm = TRUE)) %>% 
     mutate(lower = mean_parameter - sd_parameter,
@@ -254,7 +254,7 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
   p_mean_sd <- df %>% 
     filter(parameter == parm & !is.na(mean_parameter)) %>%
     # filter(parameter == parm) %>%
-    ggplot(aes(distHaversine_km, mean_parameter)) + 
+    ggplot(aes(dist_km, mean_parameter)) + 
     facet_wrap(~ Year, nrow = 1) +
     xlim(c(0, 30)) +
     geom_line() +
@@ -271,7 +271,7 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
 
 
 p_outname <- "./R_EEMs/outputs/figures/"
-dd <- "20220816_"
+dd <- "20220819_"
 
 # Water quality plots
 
@@ -281,8 +281,8 @@ dd <- "20220816_"
 p_m_sd_fieldturb <- plot_mean_sd(parm = "turb_field_NTU", parm_lab = "Turbidity (NTU)") + ylim(c(NA, 100)) + labs(x = NULL, tag = 'a')
 # p_m_sd_labturb <- plot_mean_sd(parm = "turb_lab_NTU", parm_lab = turb_lab_lab) + labs(x = NULL, tag = 'b') # not needed
 p_m_sd_extcoeff <- plot_mean_sd(parm = "ext_coeff_m", parm_lab = extinction_coefficient_lab) + ylim(c(0, NA)) + labs(x = NULL, tag = 'b')
-p_m_sd_secchi <- plot_mean_sd(parm = "secchi_depth_m", parm_lab = secchi_lab) + labs(tag = 'c')
-p_m_sd_Chla <- plot_mean_sd(parm = "chla_ug.L", parm_lab = Chla_lab) + labs(x = NULL, tag = 'd')
+p_m_sd_secchi <- plot_mean_sd(parm = "secchi_depth_m", parm_lab = secchi_lab) + labs(x = NULL, tag = 'c')
+p_m_sd_Chla <- plot_mean_sd(parm = "chla_ug.L", parm_lab = Chla_lab) + labs(tag = 'd')
 
 p_wq <- (p_m_sd_fieldturb / p_m_sd_extcoeff / p_m_sd_secchi / p_m_sd_Chla) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 ggsave(paste0(p_outname, dd, "p_wq.png"), p_wq, w = 8, h = 9)
@@ -315,7 +315,7 @@ p_m_sd_SUVA <- plot_mean_sd(parm = "SUVA", parm_lab = SUVA_lab) + theme(axis.tit
 p_m_sd_S275to295 <- plot_mean_sd(parm = "S275to295", parm_lab = S_lab) + theme(axis.title.y = element_markdown()) + ylim(c(0.018, 0.026)) + labs(x = NULL, tag = 'b')
 p_m_sd_FI <- plot_mean_sd(parm = "FI", parm_lab = FI_lab) + ylim(c(1.50, 1.65)) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'c')
 p_m_sd_HIX <- plot_mean_sd(parm = "HIX_Ohno", parm_lab = HIX_lab) + ylim(c(NA, 0.88)) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'd')
-p_m_sd_BA <- plot_mean_sd(parm = "BA", parm_lab = BA_lab) + ylim(c(0.69, 0.84)) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'e')
+p_m_sd_BA <- plot_mean_sd(parm = "BA", parm_lab = BA_lab) + ylim(c(0.69, 0.84)) + theme(axis.title.y = element_markdown()) + labs(tag = 'e')
 
 p_abs_flor <- (p_m_sd_SUVA / p_m_sd_S275to295 / p_m_sd_FI / p_m_sd_HIX / p_m_sd_BA) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 ggsave(paste0(p_outname, dd, "p_abs_flor.png"), p_abs_flor, w = 8, h = 10)
