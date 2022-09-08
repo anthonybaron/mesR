@@ -118,7 +118,7 @@ ts_rc_ic_cleandat <- ts_rc_ic_boxcox$cdat
 
 # Coherence: DOC and drivers ----------------------------------------------
 
-# Evaluate coherence between DOC and drivers using wsyn::coh.
+# Evaluate coherence between DOC and drivers using wsyn::coh. 
 coh_doc_tp <- coh(dat1 = ts_tp_cleandat, dat2 = ts_doc_cleandat, times = ts_times, 
                   norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
                   scale.max.input = 120)
@@ -131,32 +131,32 @@ coh_doc_so4 <- coh(dat1 = ts_so4_cleandat, dat2 = ts_doc_cleandat, times = ts_ti
 coh_doc_orgn <- coh(dat1 = ts_orgn_cleandat, dat2 = ts_doc_cleandat, times = ts_times, 
                     norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
                     scale.max.input = 120)
-coh_doc_no3 <- coh(dat1 = ts_no3_cleandat, dat2 = ts_doc_cleandat, times = ts_times, 
-                   norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
-                   scale.max.input = 120)
+# coh_doc_no3 <- coh(dat1 = ts_no3_cleandat, dat2 = ts_doc_cleandat, times = ts_times, 
+#                    norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+#                    scale.max.input = 120)
 coh_doc_nh3 <- coh(dat1 = ts_nh3_cleandat, dat2 = ts_doc_cleandat, times = ts_times, 
                    norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
                    scale.max.input = 120)
-# coh_doc_bp_inflow <- coh(dat1 = ts_bp_inflow_cleandat, dat2 = ts_doc_cleandat, times = ts_times, 
-#                          norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
-#                          scale.max.input = 120)
-# coh_doc_dief <- coh(dat1 = ts_dief_cleandat, dat2 = ts_doc_cleandat, times = ts_times, 
-#                     norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
-#                     scale.max.input = 120)
-# coh_doc_rc_ic <- coh(dat1 = ts_rc_ic_cleandat, dat2 = ts_doc_cleandat, times = ts_times, 
-#                      norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
-#                      scale.max.input = 120)
+coh_doc_bp_inflow <- coh(dat1 = ts_bp_inflow_cleandat, dat2 = ts_doc_cleandat, times = ts_times,
+                         norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                         scale.max.input = 120)
+coh_doc_dief <- coh(dat1 = ts_dief_cleandat, dat2 = ts_doc_cleandat, times = ts_times,
+                    norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                    scale.max.input = 120)
+coh_doc_rc_ic <- coh(dat1 = ts_rc_ic_cleandat, dat2 = ts_doc_cleandat, times = ts_times,
+                     norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                     scale.max.input = 120)
 
 par(mfrow = c(3, 3))
-plotmag(coh_doc_tp, sigthresh = 0.95); title("DOC and total phosphorus")
-plotmag(coh_doc_srp, sigthresh = 0.95); title("DOC and soluble reactive phosphorus")
+plotmag(coh_doc_tp, sigthresh = 0.95); title("DOC and TP")
+plotmag(coh_doc_srp, sigthresh = 0.95); title("DOC and SRP")
 plotmag(coh_doc_so4, sigthresh = 0.95); title("DOC and sulphate")
-plotmag(coh_doc_orgn, sigthresh = 0.95); title("DOC and organic nitrogen")
+plotmag(coh_doc_orgn, sigthresh = 0.95); title("DOC and DON")
 # plotmag(coh_doc_no3, sigthresh = 0.95); title("DOC and nitrate")
 plotmag(coh_doc_nh3, sigthresh = 0.95); title("DOC and ammonia")
 plotmag(coh_doc_bp_inflow, sigthresh = 0.95); title("DOC and BP inflow")
 plotmag(coh_doc_dief, sigthresh = 0.95); title("DOC and Diefenbaker outflow")
-plotmag(coh_doc_rc_ic, sigthresh = 0.95); title("DOC and combined Ridge Creek + Iskwao flows")
+plotmag(coh_doc_rc_ic, sigthresh = 0.95); title("DOC and catchment flow")
 
 
 # Coherence: Analytes and flow --------------------------------------------
@@ -224,37 +224,37 @@ coh_nh3_rc_ic <- coh(dat1 = ts_rc_ic_cleandat, dat2 = ts_nh3_cleandat, times = t
 # TP and flow
 par(mfrow = c(1, 3))
 plotmag(coh_tp_dief, sigthresh = 0.95); title("TP and Diefenbaker outflow")
-plotmag(coh_tp_rc_ic, sigthresh = 0.95); title("TP and combined Ridge Creek + Iskwao flows")
+plotmag(coh_tp_rc_ic, sigthresh = 0.95); title("TP and catchment flow")
 # plotmag(coh_tp_bp_inflow, sigthresh = 0.95); title("TP and BP inflow")
 
 # SRP and flow
 par(mfrow = c(1, 3))
 plotmag(coh_srp_dief, sigthresh = 0.95); title("SRP and Diefenbaker outflow")
-# plotmag(coh_srp_rc_ic, sigthresh = 0.95); title("SRP and combined Ridge Creek + Iskwao flows")
+# plotmag(coh_srp_rc_ic, sigthresh = 0.95); title("SRP and catchment flow")
 plotmag(coh_srp_bp_inflow, sigthresh = 0.95); title("SRP and BP inflow")
 
 # SO4 and flow
 par(mfrow = c(1, 3))
 plotmag(coh_so4_dief, sigthresh = 0.95); title("SO4 and Diefenbaker outflow")
-plotmag(coh_so4_rc_ic, sigthresh = 0.95); title("SO4 and combined Ridge Creek + Iskwao flows")
+plotmag(coh_so4_rc_ic, sigthresh = 0.95); title("SO4 and catchment flow")
 plotmag(coh_so4_bp_inflow, sigthresh = 0.95); title("SO4 and BP inflow")
 
 # Organic N and flow
 par(mfrow = c(1, 3))
 plotmag(coh_orgn_dief, sigthresh = 0.95); title("Organic N and Diefenbaker outflow")
-plotmag(coh_orgn_rc_ic, sigthresh = 0.95); title("Organic N and combined Ridge Creek + Iskwao flows")
+plotmag(coh_orgn_rc_ic, sigthresh = 0.95); title("Organic N and catchment flow")
 plotmag(coh_orgn_bp_inflow, sigthresh = 0.95); title("Organic N and BP inflow")
 
 # NO3 and flow
 par(mfrow = c(1, 3))
 plotmag(coh_no3_dief, sigthresh = 0.95); title("NO3 and Diefenbaker outflow")
-plotmag(coh_no3_rc_ic, sigthresh = 0.95); title("NO3 and combined Ridge Creek + Iskwao flows")
+plotmag(coh_no3_rc_ic, sigthresh = 0.95); title("NO3 and catchment flow")
 # plotmag(coh_no3_bp_inflow, sigthresh = 0.95); title("NO3 and BP inflow")
 
 # NH3 and flow
 par(mfrow = c(1, 3))
 plotmag(coh_nh3_dief, sigthresh = 0.95); title("NH3 and Diefenbaker outflow")
-plotmag(coh_nh3_rc_ic, sigthresh = 0.95); title("NH3 and combined Ridge Creek + Iskwao flows")
+plotmag(coh_nh3_rc_ic, sigthresh = 0.95); title("NH3 and catchment flow")
 plotmag(coh_nh3_bp_inflow, sigthresh = 0.95); title("NH3 and BP inflow")
 
 
@@ -270,12 +270,13 @@ title("DOC and sulphate\n 2–3 and 8–120 months")
 coh_doc_so4$bandp <- NA
 
 # 2
-plotmag(coh_doc_tp, sigthresh = 0.95); title("DOC and total phosphorus")
+plotmag(coh_doc_tp, sigthresh = 0.95); title("DOC and TP")
 coh_doc_tp <- bandtest(coh_doc_tp, c(2, 60))
 plotmag(coh_doc_tp, sigthresh = 0.95)
 title("DOC and total phosphorus\n 2–60 months")
 
 coh_doc_tp$bandp <- NA
+
 
 # 3
 plotmag(coh_doc_srp, sigthresh = 0.95); title("DOC and soluble reactive phosphorus")
@@ -312,30 +313,30 @@ coh_doc_no3$bandp <- NA
 
 plotmag(coh_doc_bp_inflow, sigthresh = 0.95); title("DOC and BP inflow")
 plotmag(coh_doc_dief, sigthresh = 0.95); title("DOC and Diefenbaker outflow")
-plotmag(coh_doc_rc_ic, sigthresh = 0.95); title("DOC and combined Ridge Creek + Iskwao flows")
+plotmag(coh_doc_rc_ic, sigthresh = 0.95); title("DOC and catchment flow")
 
 plotmag(coh_tp_dief, sigthresh = 0.95); title("TP and Diefenbaker outflow")
-plotmag(coh_tp_rc_ic, sigthresh = 0.95); title("TP and combined Ridge Creek + Iskwao flows")
+plotmag(coh_tp_rc_ic, sigthresh = 0.95); title("TP and catchment flow")
 # plotmag(coh_tp_bp_inflow, sigthresh = 0.95); title("TP and BP inflow")
 
 plotmag(coh_srp_dief, sigthresh = 0.95); title("SRP and Diefenbaker outflow")
-# plotmag(coh_srp_rc_ic, sigthresh = 0.95); title("SRP and combined Ridge Creek + Iskwao flows")
+# plotmag(coh_srp_rc_ic, sigthresh = 0.95); title("SRP and catchment flow")
 plotmag(coh_srp_bp_inflow, sigthresh = 0.95); title("SRP and BP inflow")
 
 plotmag(coh_so4_dief, sigthresh = 0.95); title("SO4 and Diefenbaker outflow")
-plotmag(coh_so4_rc_ic, sigthresh = 0.95); title("SO4 and combined Ridge Creek + Iskwao flows")
+plotmag(coh_so4_rc_ic, sigthresh = 0.95); title("SO4 and catchment flow")
 plotmag(coh_so4_bp_inflow, sigthresh = 0.95); title("SO4 and BP inflow")
 
 plotmag(coh_orgn_dief, sigthresh = 0.95); title("Organic N and Diefenbaker outflow")
-plotmag(coh_orgn_rc_ic, sigthresh = 0.95); title("Organic N and combined Ridge Creek + Iskwao flows")
+plotmag(coh_orgn_rc_ic, sigthresh = 0.95); title("Organic N and catchment flow")
 plotmag(coh_orgn_bp_inflow, sigthresh = 0.95); title("Organic N and BP inflow")
 
 plotmag(coh_no3_dief, sigthresh = 0.95); title("NO3 and Diefenbaker outflow")
-plotmag(coh_no3_rc_ic, sigthresh = 0.95); title("NO3 and combined Ridge Creek + Iskwao flows")
+plotmag(coh_no3_rc_ic, sigthresh = 0.95); title("NO3 and catchment flow")
 # plotmag(coh_no3_bp_inflow, sigthresh = 0.95); title("NO3 and BP inflow")
 
 plotmag(coh_nh3_dief, sigthresh = 0.95); title("NH3 and Diefenbaker outflow")
-plotmag(coh_nh3_rc_ic, sigthresh = 0.95); title("NH3 and combined Ridge Creek + Iskwao flows")
+plotmag(coh_nh3_rc_ic, sigthresh = 0.95); title("NH3 and catchment flow")
 plotmag(coh_nh3_bp_inflow, sigthresh = 0.95); title("NH3 and BP inflow")
 
 par(mfrow = c(9, 3))

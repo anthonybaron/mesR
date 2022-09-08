@@ -7,6 +7,7 @@ library(stringr)
 library(forcats)
 library(ggplot2)
 library(patchwork)
+library(janitor)
 
 theme_set(theme_bw(base_size = 11))
 
