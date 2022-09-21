@@ -104,10 +104,6 @@ clean_bp_historical <- function() {
   
 }
 
-bp_longterm <- clean_bp_longterm()
-bp_masterfile <- clean_bp_masterfile()
-bp_historical <- clean_bp_historical()
-
 # Plot labels -------------------------------------------------------------
 
 # DOC_lab <- expression(paste("DOC (mg L"^-1*")")) 
