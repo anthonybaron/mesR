@@ -9,7 +9,14 @@ library(cowplot)
 library(gridGraphics)
 library(spatstat)
 
-theme_set(theme_bw(base_size = 12) + theme(panel.background = element_blank())) 
+theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank())) 
+
+bp_drivers %>% 
+  ggplot(aes(date_ymd, DOC_mg.L)) + 
+  geom_line(col = "steelblue3", size = 1) + 
+  lims(y = c(2.5, NA)) +
+  labs(x = "Year", y = expression(paste("DOC concentration (mg L"^-1*")")),
+       subtitle = "Average monthly DOC concentration (1990–2019)")
 
 
 # Source data -------------------------------------------------------------
@@ -21,17 +28,17 @@ bp_drivers <- wavelet_data()
 
 # Check autocorrelation in time series ------------------------------------
 
-acf(bp_drivers$DOC_mg.L)
-acf(bp_drivers$chla_ug.L)
-acf(bp_drivers$TP_ug.L)
-acf(bp_drivers$SRP_ug.L)
-acf(bp_drivers$SO4_mg.L)
-acf(bp_drivers$DON_mg.L)
-acf(bp_drivers$NO3_mg.L)
-acf(bp_drivers$NH3_mg.L)
-acf(bp_drivers$SK05JG004_combined_cms)
-acf(bp_drivers$SK05JG006_cms)
-acf(bp_drivers$RC_IC_cms)
+# acf(bp_drivers$DOC_mg.L)
+# acf(bp_drivers$chla_ug.L)
+# acf(bp_drivers$TP_ug.L)
+# acf(bp_drivers$SRP_ug.L)
+# acf(bp_drivers$SO4_mg.L)
+# acf(bp_drivers$DON_mg.L)
+# acf(bp_drivers$NO3_mg.L)
+# acf(bp_drivers$NH3_mg.L)
+# acf(bp_drivers$SK05JG004_combined_cms)
+# acf(bp_drivers$SK05JG006_cms)
+# acf(bp_drivers$RC_IC_cms)
 
 
 # Wavelet analyses --------------------------------------------------------
@@ -129,7 +136,7 @@ plotmag_wt_dr <- function(object, zlims = NULL, neat = TRUE, colorfill = NULL,
   
   if (!colorbar) {
     graphics::image(x = times, y = log2(timescales), z = wav,
-                    xlab= "", zlim = zlims, ylab = "Timescale (years)",
+                    xlab = "", zlim = zlims, ylab = "Timescale (years)",
                     axes = FALSE, col = colorfill(100), main = title, ...)
     graphics::axis(1, at = xlocs, labels = xlabs)
     graphics::axis(2, at = log2(ylocs), labels = ylabs)
@@ -429,6 +436,15 @@ plotmag_coh_dr(coh_doc_nh3, sigthresh = 0.95); title(expression("DOC and NH"[3]*
 plotmag_coh_dr(coh_doc_bp, sigthresh = 0.95); title(expression("DOC and BP inflow"))
 plotmag_coh_dr(coh_doc_dief, sigthresh = 0.95); title(expression(bold("DOC and Lake Diefenbaker outflow")))
 plotmag_coh_dr(coh_doc_cat, sigthresh = 0.95); title(expression("DOC and catchment flow"))
+
+plotmag_coh_dr(coh_doc_so4, sigthresh = 0.95); title(expression(bold("DOC and SO"["4"]^" 2–")))
+coh_doc_so4 <- bandtest(coh_doc_so4, c(48, 72))
+plotmag_coh_dr(coh_doc_so4, sigthresh = 0.95); title(expression(bold("DOC and SO"["4"]^" 2–")))
+
+plotmag_coh_dr(coh_doc_dief, sigthresh = 0.95); title(expression(bold("DOC and Lake Diefenbaker outflow")))
+coh_doc_dief <- bandtest(coh_doc_dief, c(96, 120))
+plotmag_coh_dr(coh_doc_dief, sigthresh = 0.95); title(expression(bold("DOC and Lake Diefenbaker outflow")))
+
 
 # Coherence and phase (trial run) -----------------------------------------
 
