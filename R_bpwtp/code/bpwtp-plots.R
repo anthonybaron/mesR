@@ -7,7 +7,7 @@ library(ggbeeswarm)
 
 source("./R_data-cleaning/bpwtp/code/clean-bpwtp.R")
 
-theme_set(theme_bw(base_size = 16))
+theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank()))
 
 bp_longterm_raw <- bind_all_parms()
 
@@ -31,40 +31,40 @@ parm_fig <- function(df = "", var = "") {
   
 }
 
-parm_fig(bp_longterm, "DOC")
-parm_fig(bp_longterm_clean, "DOC") # looks good
-
-parm_fig(bp_longterm, "UV 254") 
-parm_fig(bp_longterm_clean, "UV254") # nope
-
-parm_fig(bp_longterm, "SUVA")
-
-parm_fig(bp_longterm, "Sulphate")
-parm_fig(bp_longterm_clean, "Sulphate") # nope
-
-parm_fig(bp_longterm, "Conductivity")
-parm_fig(bp_longterm_clean, "Conductivity") # nope
-
-parm_fig(bp_longterm, "pH")
-parm_fig(bp_longterm_clean, "pH") # looks ok
-
-parm_fig(bp_longterm, "Nitrate")
-parm_fig(bp_longterm_clean, "Nitrate") # looks ok, but look into further
-
-parm_fig(bp_longterm, "Phosphate (ortho)")
-parm_fig(bp_longterm_clean, "SRP") # maybe
-
-parm_fig(bp_longterm, "Phosphate (total)")
-parm_fig(bp_longterm_clean, "TP") # maybe
-
-parm_fig(bp_longterm, "Blue Green Algae")
-parm_fig(bp_longterm_clean, "Blue Green Algae") # no change
-
-parm_fig(bp_longterm, "Green Algae")
-parm_fig(bp_longterm_clean, "Green Algae") # no change
-
-parm_fig(bp_longterm, "Total BG + G") 
-parm_fig(bp_longterm_clean, "Total BG + G")
+# parm_fig(bp_longterm, "DOC")
+# parm_fig(bp_longterm_clean, "DOC") # looks good
+# 
+# parm_fig(bp_longterm, "UV 254") 
+# parm_fig(bp_longterm_clean, "UV254") # nope
+# 
+# parm_fig(bp_longterm, "SUVA")
+# 
+# parm_fig(bp_longterm, "Sulphate")
+# parm_fig(bp_longterm_clean, "Sulphate") # nope
+# 
+# parm_fig(bp_longterm, "Conductivity")
+# parm_fig(bp_longterm_clean, "Conductivity") # nope
+# 
+# parm_fig(bp_longterm, "pH")
+# parm_fig(bp_longterm_clean, "pH") # looks ok
+# 
+# parm_fig(bp_longterm, "Nitrate")
+# parm_fig(bp_longterm_clean, "Nitrate") # looks ok, but look into further
+# 
+# parm_fig(bp_longterm, "Phosphate (ortho)")
+# parm_fig(bp_longterm_clean, "SRP") # maybe
+# 
+# parm_fig(bp_longterm, "Phosphate (total)")
+# parm_fig(bp_longterm_clean, "TP") # maybe
+# 
+# parm_fig(bp_longterm, "Blue Green Algae")
+# parm_fig(bp_longterm_clean, "Blue Green Algae") # no change
+# 
+# parm_fig(bp_longterm, "Green Algae")
+# parm_fig(bp_longterm_clean, "Green Algae") # no change
+# 
+# parm_fig(bp_longterm, "Total BG + G") 
+# parm_fig(bp_longterm_clean, "Total BG + G")
 
 
 ts_fig <- function(df = "", var = "", save_plot = FALSE, outdir = "./R_bpwtp/thesis/outputs/figures") {
@@ -93,19 +93,19 @@ ts_fig <- function(df = "", var = "", save_plot = FALSE, outdir = "./R_bpwtp/the
   
 } 
 
-ts_fig(bp_longterm, "DOC", save_plot = TRUE)
-ts_fig(bp_longterm, "UV 254", save_plot = TRUE) 
-ts_fig(bp_longterm, "SUVA", save_plot = TRUE)
-ts_fig(bp_longterm, "Sulphate", save_plot = TRUE)
-ts_fig(bp_longterm, "Conductivity", save_plot = TRUE)
-ts_fig(bp_longterm, "pH", save_plot = TRUE)
-ts_fig(bp_longterm, "Nitrate", save_plot = TRUE)
-ts_fig(bp_longterm, "Phosphate (ortho)", save_plot = TRUE)
-ts_fig(bp_longterm, "Phosphate (total)", save_plot = TRUE)
-# ts_fig(bp_longterm, "Calculated TDS", save_plot = TRUE)
-ts_fig(bp_longterm, "Blue Green Algae", save_plot = TRUE)
-ts_fig(bp_longterm, "Green Algae", save_plot = TRUE)
-ts_fig(bp_longterm, "Total BG + G", save_plot = TRUE)
+# ts_fig(bp_longterm, "DOC", save_plot = TRUE)
+# ts_fig(bp_longterm, "UV 254", save_plot = TRUE) 
+# ts_fig(bp_longterm, "SUVA", save_plot = TRUE)
+# ts_fig(bp_longterm, "Sulphate", save_plot = TRUE)
+# ts_fig(bp_longterm, "Conductivity", save_plot = TRUE)
+# ts_fig(bp_longterm, "pH", save_plot = TRUE)
+# ts_fig(bp_longterm, "Nitrate", save_plot = TRUE)
+# ts_fig(bp_longterm, "Phosphate (ortho)", save_plot = TRUE)
+# ts_fig(bp_longterm, "Phosphate (total)", save_plot = TRUE)
+# # ts_fig(bp_longterm, "Calculated TDS", save_plot = TRUE)
+# ts_fig(bp_longterm, "Blue Green Algae", save_plot = TRUE)
+# ts_fig(bp_longterm, "Green Algae", save_plot = TRUE)
+# ts_fig(bp_longterm, "Total BG + G", save_plot = TRUE)
 
 
 count_NAs <- function(df = "", var = "") {
@@ -119,20 +119,20 @@ count_NAs <- function(df = "", var = "") {
 
 }
 
-count_NAs(bp_longterm, "DOC")
-count_NAs(bp_longterm, "UV 254") 
-count_NAs(bp_longterm, "SUVA")
-count_NAs(bp_longterm, "Sulphate")
-count_NAs(bp_longterm, "Conductivity")
-count_NAs(bp_longterm, "pH")
-count_NAs(bp_longterm, "Nitrate")
-count_NAs(bp_longterm, "Phosphate (ortho)")
-count_NAs(bp_longterm, "Phosphate (total)")
-count_NAs(bp_longterm, "TDS") 
-count_NAs(bp_longterm, "Calculated TDS") 
-count_NAs(bp_longterm, "Blue Green Algae")
-count_NAs(bp_longterm, "Green Algae")
-count_NAs(bp_longterm, "Total BG + G")
+# count_NAs(bp_longterm, "DOC")
+# count_NAs(bp_longterm, "UV 254") 
+# count_NAs(bp_longterm, "SUVA")
+# count_NAs(bp_longterm, "Sulphate")
+# count_NAs(bp_longterm, "Conductivity")
+# count_NAs(bp_longterm, "pH")
+# count_NAs(bp_longterm, "Nitrate")
+# count_NAs(bp_longterm, "Phosphate (ortho)")
+# count_NAs(bp_longterm, "Phosphate (total)")
+# count_NAs(bp_longterm, "TDS") 
+# count_NAs(bp_longterm, "Calculated TDS") 
+# count_NAs(bp_longterm, "Blue Green Algae")
+# count_NAs(bp_longterm, "Green Algae")
+# count_NAs(bp_longterm, "Total BG + G")
 
 
 
@@ -160,19 +160,19 @@ week_fig <- function(df = "", var = "", save_plot = FALSE, outdir = "./R_bpwtp/t
   
 }
 
-week_fig(bp_longterm, "DOC", save_plot = TRUE)
-week_fig(bp_longterm, "UV 254", save_plot = TRUE) 
-week_fig(bp_longterm, "SUVA", save_plot = TRUE)
-week_fig(bp_longterm, "Sulphate", save_plot = TRUE)
-week_fig(bp_longterm, "Conductivity", save_plot = TRUE)
-week_fig(bp_longterm, "pH", save_plot = TRUE)
-week_fig(bp_longterm, "Nitrate", save_plot = TRUE)
-week_fig(bp_longterm, "Phosphate (ortho)", save_plot = TRUE)
-week_fig(bp_longterm, "Phosphate (total)", save_plot = TRUE)
-week_fig(bp_longterm, "Calculated TDS", save_plot = TRUE) 
-week_fig(bp_longterm, "Blue Green Algae", save_plot = TRUE)
-week_fig(bp_longterm, "Green Algae", save_plot = TRUE)
-week_fig(bp_longterm, "Total BG + G", save_plot = TRUE)
+# week_fig(bp_longterm, "DOC", save_plot = TRUE)
+# week_fig(bp_longterm, "UV 254", save_plot = TRUE) 
+# week_fig(bp_longterm, "SUVA", save_plot = TRUE)
+# week_fig(bp_longterm, "Sulphate", save_plot = TRUE)
+# week_fig(bp_longterm, "Conductivity", save_plot = TRUE)
+# week_fig(bp_longterm, "pH", save_plot = TRUE)
+# week_fig(bp_longterm, "Nitrate", save_plot = TRUE)
+# week_fig(bp_longterm, "Phosphate (ortho)", save_plot = TRUE)
+# week_fig(bp_longterm, "Phosphate (total)", save_plot = TRUE)
+# week_fig(bp_longterm, "Calculated TDS", save_plot = TRUE) 
+# week_fig(bp_longterm, "Blue Green Algae", save_plot = TRUE)
+# week_fig(bp_longterm, "Green Algae", save_plot = TRUE)
+# week_fig(bp_longterm, "Total BG + G", save_plot = TRUE)
 
 
 
@@ -210,31 +210,31 @@ weeks_between_sampling <- function(df = "", var = "", save_plot = FALSE, outdir 
   
 } 
   
-weeks_between_sampling(bp_longterm, "DOC", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "UV 254", save_plot = TRUE) 
-weeks_between_sampling(bp_longterm, "SUVA", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "Sulphate", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "Conductivity", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "pH", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "Nitrate", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "Phosphate (ortho)", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "Phosphate (total)", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "Blue Green Algae", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "Green Algae", save_plot = TRUE)
-weeks_between_sampling(bp_longterm, "Total BG + G", save_plot = TRUE)
-
-weeks_between_sampling(bp_longterm_clean, "DOC")
-weeks_between_sampling(bp_longterm_clean, "UV254") 
-weeks_between_sampling(bp_longterm_clean, "Sulphate")
-weeks_between_sampling(bp_longterm_clean, "Conductivity")
-weeks_between_sampling(bp_longterm_clean, "pH")
-weeks_between_sampling(bp_longterm_clean, "Nitrate")
-weeks_between_sampling(bp_longterm_clean, "Organic N")
-weeks_between_sampling(bp_longterm_clean, "SRP")
-weeks_between_sampling(bp_longterm_clean, "TP")
-weeks_between_sampling(bp_longterm_clean, "Blue Green Algae")
-weeks_between_sampling(bp_longterm_clean, "Green Algae")
-weeks_between_sampling(bp_longterm_clean, "Total BG + G")
+# weeks_between_sampling(bp_longterm, "DOC", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "UV 254", save_plot = TRUE) 
+# weeks_between_sampling(bp_longterm, "SUVA", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "Sulphate", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "Conductivity", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "pH", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "Nitrate", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "Phosphate (ortho)", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "Phosphate (total)", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "Blue Green Algae", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "Green Algae", save_plot = TRUE)
+# weeks_between_sampling(bp_longterm, "Total BG + G", save_plot = TRUE)
+# 
+# weeks_between_sampling(bp_longterm_clean, "DOC")
+# weeks_between_sampling(bp_longterm_clean, "UV254") 
+# weeks_between_sampling(bp_longterm_clean, "Sulphate")
+# weeks_between_sampling(bp_longterm_clean, "Conductivity")
+# weeks_between_sampling(bp_longterm_clean, "pH")
+# weeks_between_sampling(bp_longterm_clean, "Nitrate")
+# weeks_between_sampling(bp_longterm_clean, "Organic N")
+# weeks_between_sampling(bp_longterm_clean, "SRP")
+# weeks_between_sampling(bp_longterm_clean, "TP")
+# weeks_between_sampling(bp_longterm_clean, "Blue Green Algae")
+# weeks_between_sampling(bp_longterm_clean, "Green Algae")
+# weeks_between_sampling(bp_longterm_clean, "Total BG + G")
 
 
 

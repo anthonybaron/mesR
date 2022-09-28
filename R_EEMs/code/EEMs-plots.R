@@ -71,16 +71,37 @@ eems <- eems %>%
   mutate(site_code_long = forcats::fct_relevel(site_code_long, site_codes_c),
          site_abbr = forcats::fct_relevel(site_abbr, site_abbrs_c))
 
+eems$site_abbr1 <- case_when(
+  eems$site_abbr == "LI" ~ "B1.7",
+  eems$site_abbr == "CU" ~ "B3.8",
+  eems$site_abbr == "CB" ~ "B5.2",
+  eems$site_abbr == "SL" ~ "B9.0",
+  eems$site_abbr == "SV" ~ "B13.0",
+  eems$site_abbr == "PK" ~ "B19.8",
+  eems$site_abbr == "TP" ~ "B25.2",
+  eems$site_abbr == "AO" ~ "B29.1",
+)
+eems <- select(eems, site_name:site_abbr, site_abbr1, everything())
+eems <- rename(eems, dist_km = distHaversine_km)
+eems$dist_km <- eems$dist_km + 1.5
+eems$dist_km <- case_when(
+  eems$site_abbr1 == "B1.7" ~ 1.71,
+  eems$site_abbr1 == "B3.8" ~ 3.75,
+  TRUE ~ as.numeric(eems$dist_km)
+)
+eems$site_abbr1 <- factor(eems$site_abbr1, 
+                          levels = c("B1.7", "B3.8", "B5.2", "B9.0", 
+                                     "B13.0", "B19.8", "B25.2", "B29.1"))
 
 # Parameter labels --------------------------------------------------------
 
-A254_lab <- expression(paste("A"[254]*""))
-A280_lab <- expression(paste("A"[280]*""))
-A350_lab <- expression(paste("A"[350]*""))
-A440_lab <- expression(paste("A"[440]*""))
+A254_lab <- expression(paste(italic("A"), ""[254]*""))
+A280_lab <- expression(paste(italic("A"), ""[280]*""))
+A350_lab <- expression(paste(italic("A"), ""[350]*""))
+A440_lab <- expression(paste(italic("A"), ""[440]*""))
 AT_ratio_lab <- "Peak A:Peak T"
-BA_lab <- "Freshness index<br>(<i>&beta;<i/>:<i>&alpha;<i/>)"
-BA_lab1 <- expression(paste("Freshness Index (", italic(β), ":", italic(α), ")"))
+BA_lab <- "Freshness index<br>(&beta;:&alpha;)"
+BA_lab1 <- expression(paste("Freshness Index (β:α)"))
 Chla_lab <- expression(paste("Chl ", italic(a), " (µg L"^-1*")")) 
 CA_ratio_lab <- "Peak C:Peak A"
 CM_ratio_lab <- "Peak C:Peak M"
@@ -102,7 +123,7 @@ PeakP_lab <- "Peak P (RU)"
 PeakT_lab <- "Peak T (RU)"
 S_lab <- "<i>S</i><sub>275–295</sub><br>(nm<sup>–1</sup>)"
 S_lab2 <- "<i>S</i><sub>350–400</sub> (nm<sup>–1</sup>)"
-spectral_ratio_lab <- "<i>S</i><sub><i>R</i></sub>"
+spectral_ratio_lab <- "<i>S</i><sub>R</sub>"
 secchi_lab <- "Secchi depth (m)"
 SUVA_lab <- "SUVA<sub>254</sub><br>(L mg-C<sup>–1</sup> m<sup>–1</sup>)"
 SUVA_lab1 <- expression(paste("SUVA"[254]*" (L mg-C"^-1*" m"^-1*")"))
@@ -236,7 +257,6 @@ bp_select_sites %>%
 plot_mean_sd <- function(parm = "", parm_lab = "") { 
   
   df <- eems %>% 
-    # mutate(distHaversine_km = distHaversine_km + 1.5) %>% 
     # select(-c(Fmax, TSS_mg.L, source, site_altname, PeakA_percent:PeakT_percent,
     #           site_num, distHaversine_m)) %>% 
     pivot_longer(cols = c(TDN_mg.L:spT), 
@@ -244,7 +264,7 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
                  values_to = "result") %>% 
     mutate(parameter = factor(parameter),
            Site = site_code_long) %>% 
-    group_by(Site, site_abbr, Year, dist_km, parameter) %>% 
+    group_by(Site, site_abbr1, Year, dist_km, parameter) %>% 
     summarise(mean_parameter = mean(result, na.rm = TRUE),
               sd_parameter = sd(result, na.rm = TRUE)) %>% 
     mutate(lower = mean_parameter - sd_parameter,
@@ -258,20 +278,21 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
     facet_wrap(~ Year, nrow = 1) +
     xlim(c(0, 30)) +
     geom_line() +
-    geom_errorbar(aes(ymin = lower, ymax = upper, col = Site), width = 0.33) +
-    geom_point(aes(col = Site), size = 3) + 
+    geom_errorbar(aes(ymin = lower, ymax = upper, col = site_abbr1), width = 0.33) +
+    geom_point(aes(col = site_abbr1), size = 3) + 
     scale_color_viridis_d(begin = 0, end = 0.8) +
     theme(legend.position = "bottom", plot.tag = element_text(face = "bold")) +
-    labs(x = dist_lab, y = parm_lab)
+    guides(col = guide_legend(nrow = 1)) + 
+    labs(x = dist_lab, y = parm_lab, col = "Site")
     
   return(p_mean_sd)
   
-  }
+}
 
 
 
 p_outname <- "./R_EEMs/outputs/figures/"
-dd <- "20220819_"
+dd <- "20220926_"
 
 # Water quality plots
 
@@ -281,7 +302,7 @@ dd <- "20220819_"
 p_m_sd_fieldturb <- plot_mean_sd(parm = "turb_field_NTU", parm_lab = "Turbidity (NTU)") + ylim(c(NA, 100)) + labs(x = NULL, tag = 'a')
 # p_m_sd_labturb <- plot_mean_sd(parm = "turb_lab_NTU", parm_lab = turb_lab_lab) + labs(x = NULL, tag = 'b') # not needed
 p_m_sd_extcoeff <- plot_mean_sd(parm = "ext_coeff_m", parm_lab = extinction_coefficient_lab) + ylim(c(0, NA)) + labs(x = NULL, tag = 'b')
-p_m_sd_secchi <- plot_mean_sd(parm = "secchi_depth_m", parm_lab = secchi_lab) + labs(x = NULL, tag = 'c')
+p_m_sd_secchi <- plot_mean_sd(parm = "secchi_depth_m", parm_lab = secchi_lab) + scale_y_reverse() + labs(x = NULL, tag = 'c')
 p_m_sd_Chla <- plot_mean_sd(parm = "chla_ug.L", parm_lab = Chla_lab) + labs(tag = 'd')
 
 p_wq <- (p_m_sd_fieldturb / p_m_sd_extcoeff / p_m_sd_secchi / p_m_sd_Chla) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
@@ -291,7 +312,7 @@ ggsave(paste0(p_outname, dd, "p_wq.png"), p_wq, w = 8, h = 9)
 
 ### TDN and DOC (main text)
 p_m_sd_TDN <- plot_mean_sd(parm = "TDN_mg.L", parm_lab = TDN_lab) + ylim(c(0.2, 0.6)) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'a')
-p_m_sd_DOC <- plot_mean_sd(parm = "DOC_mg.L", parm_lab = DOC_lab) + theme(axis.title.y = element_markdown()) + labs(x = NULL, tag = 'b')
+p_m_sd_DOC <- plot_mean_sd(parm = "DOC_mg.L", parm_lab = DOC_lab) + theme(axis.title.y = element_markdown()) + labs(tag = 'b')
 
 p_tdn_doc <- (p_m_sd_TDN / p_m_sd_DOC) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 ggsave(paste0(p_outname, dd, "p_tdn_doc.png"), p_tdn_doc, w = 8, h = 5.5)
@@ -372,12 +393,10 @@ p_fresh_sp_peaks <- (p_m_sd_spB / p_m_sd_spT / p_m_sd_spN) + plot_layout(guides 
 ggsave(paste0(p_outname, dd, "p_fresh_sp_peaks.png"), p_fresh_sp_peaks, w = 8, h = 6.5)
 
 
-eems %>% select(site_code_long, date_ymd, starts_with("sp")) %>% View()
-
 #
 
 ### Peak ratios (CT, AT, CA, CM)
-p_m_sd_CTratio <- plot_mean_sd(parm = "CT_ratio", parm_lab = CT_ratio_lab) + labs(tag = 'a')
+p_m_sd_CTratio <- plot_mean_sd(parm = "CT_ratio", parm_lab = CT_ratio_lab) + labs(x = NULL, tag = 'a')
 p_m_sd_ATratio <- plot_mean_sd(parm = "AT_ratio", parm_lab = AT_ratio_lab) + labs(x = NULL, tag = 'b')
 p_m_sd_CAratio <- plot_mean_sd(parm = "CA_ratio", parm_lab = CA_ratio_lab) + labs(x = NULL, tag = 'c')
 p_m_sd_CMratio <- plot_mean_sd(parm = "CM_ratio", parm_lab = CM_ratio_lab) + labs(tag = 'd')

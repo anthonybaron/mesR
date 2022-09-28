@@ -11,12 +11,12 @@ library(spatstat)
 
 theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank())) 
 
-bp_drivers %>% 
-  ggplot(aes(date_ymd, DOC_mg.L)) + 
-  geom_line(col = "steelblue3", size = 1) + 
-  lims(y = c(2.5, NA)) +
-  labs(x = "Year", y = expression(paste("DOC concentration (mg L"^-1*")")),
-       subtitle = "Average monthly DOC concentration (1990–2019)")
+# bp_drivers %>% 
+#   ggplot(aes(date_ymd, DOC_mg.L)) + 
+#   geom_line(col = "steelblue3", size = 1) + 
+#   lims(y = c(2.5, NA)) +
+#   labs(x = "Year", y = expression(paste("DOC concentration (mg L"^-1*")")),
+#        subtitle = "Average monthly DOC concentration (1990–2019)")
 
 
 # Source data -------------------------------------------------------------
@@ -153,130 +153,130 @@ plotmag_wt_dr <- function(object, zlims = NULL, neat = TRUE, colorfill = NULL,
   }
 }
 
+# 
+# # par(mfrow = c(3, 3))
+# # 
+# # par(mfrow = c(3, 3), 
+# #     mar = c(1.1, 3.5, 1.1, 1.1), 
+# #     oma = c(1.1, 0, 0, 0), 
+# #     mgp = c(2.2, 0.8, 0))
+# 
+# # par(mfrow = c(1, 1),
+# #     mar = c(1.6, 3.5, 2.1, 1.1), 
+# #     oma = c(1.6, 0, 1.1, 0), 
+# #     mgp = c(2.2, 0.8, 0))
+# 
+# plotmag_wt_dr(wt_doc, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title("DOC", font.main = 2)
+# # legend("topleft", "a", text.font = 2, bty = "n", cex = 1.15)
+# p1 <- recordPlot()
+# 
+# plotmag_wt_dr(wt_tp, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title("TP", font.main = 2)
+# # legend("topleft", "b", text.font = 2, bty = "n", cex = 1.15)
+# p2 <- recordPlot()
+# 
+# plotmag_wt_dr(wt_srp, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title("SRP", font.main = 2)
+# # legend("topleft", "c", text.font = 2, bty = "n", cex = 1.15)
+# p3 <- recordPlot()
+# 
+# plotmag_wt_dr(wt_so4, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title(expression(bold("SO"["4"]^" 2–")))
+# # legend("topleft", "d", text.font = 2, bty = "n", cex = 1.15)
+# p4 <- recordPlot()
+# 
+# plotmag_wt_dr(wt_no3, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title(expression(bold("NO"[3]*"–N")))
+# # legend("topleft", "e", text.font = 2, bty = "n", cex = 1.15)
+# p5 <- recordPlot()
+# 
+# plotmag_wt_dr(wt_nh3, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title(expression(bold("NH"[3]*"–N")))
+# # legend("topleft", "f", text.font = 2, bty = "n", cex = 1.15)
+# p6 <- recordPlot()
+# 
+# plotmag_wt_dr(wt_bp, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title("BP inflow", font.main = 2)
+# # legend("topleft", "g", text.font = 2, bty = "n", cex = 1.15)
+# p7 <- recordPlot()
+# 
+# plotmag_wt_dr(wt_dief, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title("Lake Diefenbaker outflow", font.main = 2)
+# # legend("topleft", "h", text.font = 2, bty = "n", cex = 1.15)
+# p8 <- recordPlot()
+# 
+# plotmag_wt_dr(wt_cat, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title("Catchment flows", font.main = 2)
+# # legend("topleft", "i", text.font = 2, bty = "n", cex = 1.15)
+# p9 <- recordPlot()
+# 
+# plotmag_wt_dr(wt_chla, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
+#               ylocs = c(0, 6, 12, 24, 48, 96, 144), 
+#               ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
+#               xlocs = seq(0, 360, by = 60),
+#               xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
+# title("Chlorophyll a", font.main = 2)
+# # legend("topleft", "a", text.font = 2, bty = "n", cex = 1.15)
+# p10 <- recordPlot()
+# 
+# plot_grid(p1, p2, p3,
+#           p4, p5, p6, 
+#           p7, p8, p9, p10,
+#           ncol = 4, 
+#           labels = NULL,
+#           label_size = 12,
+#           scale = 0.8,
+#           axis = "b")
+
+
 
 # par(mfrow = c(3, 3))
-# 
-# par(mfrow = c(3, 3), 
-#     mar = c(1.1, 3.5, 1.1, 1.1), 
-#     oma = c(1.1, 0, 0, 0), 
-#     mgp = c(2.2, 0.8, 0))
-
-# par(mfrow = c(1, 1),
-#     mar = c(1.6, 3.5, 2.1, 1.1), 
-#     oma = c(1.6, 0, 1.1, 0), 
-#     mgp = c(2.2, 0.8, 0))
-
-plotmag_wt_dr(wt_doc, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title("DOC", font.main = 2)
-# legend("topleft", "a", text.font = 2, bty = "n", cex = 1.15)
-p1 <- recordPlot()
-
-plotmag_wt_dr(wt_tp, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title("TP", font.main = 2)
-# legend("topleft", "b", text.font = 2, bty = "n", cex = 1.15)
-p2 <- recordPlot()
-
-plotmag_wt_dr(wt_srp, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title("SRP", font.main = 2)
-# legend("topleft", "c", text.font = 2, bty = "n", cex = 1.15)
-p3 <- recordPlot()
-
-plotmag_wt_dr(wt_so4, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title(expression(bold("SO"["4"]^" 2–")))
-# legend("topleft", "d", text.font = 2, bty = "n", cex = 1.15)
-p4 <- recordPlot()
-
-plotmag_wt_dr(wt_no3, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title(expression(bold("NO"[3]*"–N")))
-# legend("topleft", "e", text.font = 2, bty = "n", cex = 1.15)
-p5 <- recordPlot()
-
-plotmag_wt_dr(wt_nh3, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title(expression(bold("NH"[3]*"–N")))
-# legend("topleft", "f", text.font = 2, bty = "n", cex = 1.15)
-p6 <- recordPlot()
-
-plotmag_wt_dr(wt_bp, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title("BP inflow", font.main = 2)
-# legend("topleft", "g", text.font = 2, bty = "n", cex = 1.15)
-p7 <- recordPlot()
-
-plotmag_wt_dr(wt_dief, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title("Lake Diefenbaker outflow", font.main = 2)
-# legend("topleft", "h", text.font = 2, bty = "n", cex = 1.15)
-p8 <- recordPlot()
-
-plotmag_wt_dr(wt_cat, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title("Catchment flows", font.main = 2)
-# legend("topleft", "i", text.font = 2, bty = "n", cex = 1.15)
-p9 <- recordPlot()
-
-plotmag_wt_dr(wt_chla, xaxs = "r", yaxs = "r", colorbar = TRUE, zlims = c(0, 8), 
-              ylocs = c(0, 6, 12, 24, 48, 96, 144), 
-              ylabs = c(0, 0.5, 1, 2, 4, 8, 12),
-              xlocs = seq(0, 360, by = 60),
-              xlabs = c(1990, 1995, 2000, 2005, 2010, 2015, 2019))
-title("Chlorophyll a", font.main = 2)
-# legend("topleft", "a", text.font = 2, bty = "n", cex = 1.15)
-p10 <- recordPlot()
-
-plot_grid(p1, p2, p3,
-          p4, p5, p6, 
-          p7, p8, p9, p10,
-          ncol = 4, 
-          labels = NULL,
-          label_size = 12,
-          scale = 0.8,
-          axis = "b")
-
-
-
-par(mfrow = c(3, 3))
-plotmag(wt_doc); title("DOC") # 1
-plotmag(wt_tp); title("TP") # 2
-plotmag(wt_srp); title("SRP") # 3
-plotmag(wt_so4); title("SO4") # 4
-plotmag(wt_don); title("DON") # 5 
-plotmag(wt_nh3); title("NH3") # 6
-plotmag(wt_bp); title("BP inflow") # 7
-plotmag(wt_dief); title("L. Dief. outflow") # 8
-plotmag(wt_cat); title("Catchment flows") # 9
+# plotmag(wt_doc); title("DOC") # 1
+# plotmag(wt_tp); title("TP") # 2
+# plotmag(wt_srp); title("SRP") # 3
+# plotmag(wt_so4); title("SO4") # 4
+# plotmag(wt_don); title("DON") # 5 
+# plotmag(wt_nh3); title("NH3") # 6
+# plotmag(wt_bp); title("BP inflow") # 7
+# plotmag(wt_dief); title("L. Dief. outflow") # 8
+# plotmag(wt_cat); title("Catchment flows") # 9
 
 
 # Then extract the numeric vectors for each cleaned time series to use with
@@ -426,24 +426,24 @@ plotmag_coh_dr <- function(object, sigthresh = c(0.95, 0.99), bandprows = "all",
   }
 }
 
-par(mfrow = c(3, 3), mai = c(0.6, 0.6, 0.3, 0.1))
-plotmag_coh_dr(coh_doc_tp, sigthresh = 0.95); title(expression("DOC and TP"))
-plotmag_coh_dr(coh_doc_srp, sigthresh = 0.95); title(expression("DOC and SRP"))
-plotmag_coh_dr(coh_doc_so4, sigthresh = 0.95); title(expression(bold("DOC and SO"["4"]^" 2–")))
-# plotmag_coh_dr(coh_doc_don, sigthresh = 0.95); title(expression("DOC and DON"))
-# plotmag_coh_dr(coh_doc_no3, sigthresh = 0.95); title(expression("DOC and NO"[3]*""))
-plotmag_coh_dr(coh_doc_nh3, sigthresh = 0.95); title(expression("DOC and NH"[3]*""))
-plotmag_coh_dr(coh_doc_bp, sigthresh = 0.95); title(expression("DOC and BP inflow"))
-plotmag_coh_dr(coh_doc_dief, sigthresh = 0.95); title(expression(bold("DOC and Lake Diefenbaker outflow")))
-plotmag_coh_dr(coh_doc_cat, sigthresh = 0.95); title(expression("DOC and catchment flow"))
-
-plotmag_coh_dr(coh_doc_so4, sigthresh = 0.95); title(expression(bold("DOC and SO"["4"]^" 2–")))
-coh_doc_so4 <- bandtest(coh_doc_so4, c(48, 72))
-plotmag_coh_dr(coh_doc_so4, sigthresh = 0.95); title(expression(bold("DOC and SO"["4"]^" 2–")))
-
-plotmag_coh_dr(coh_doc_dief, sigthresh = 0.95); title(expression(bold("DOC and Lake Diefenbaker outflow")))
-coh_doc_dief <- bandtest(coh_doc_dief, c(96, 120))
-plotmag_coh_dr(coh_doc_dief, sigthresh = 0.95); title(expression(bold("DOC and Lake Diefenbaker outflow")))
+# par(mfrow = c(3, 3), mai = c(0.6, 0.6, 0.3, 0.1))
+# plotmag_coh_dr(coh_doc_tp, sigthresh = 0.95); title(expression("DOC and TP"))
+# plotmag_coh_dr(coh_doc_srp, sigthresh = 0.95); title(expression("DOC and SRP"))
+# plotmag_coh_dr(coh_doc_so4, sigthresh = 0.95); title(expression(bold("DOC and SO"["4"]^" 2–")))
+# # plotmag_coh_dr(coh_doc_don, sigthresh = 0.95); title(expression("DOC and DON"))
+# # plotmag_coh_dr(coh_doc_no3, sigthresh = 0.95); title(expression("DOC and NO"[3]*""))
+# plotmag_coh_dr(coh_doc_nh3, sigthresh = 0.95); title(expression("DOC and NH"[3]*""))
+# plotmag_coh_dr(coh_doc_bp, sigthresh = 0.95); title(expression("DOC and BP inflow"))
+# plotmag_coh_dr(coh_doc_dief, sigthresh = 0.95); title(expression(bold("DOC and Lake Diefenbaker outflow")))
+# plotmag_coh_dr(coh_doc_cat, sigthresh = 0.95); title(expression("DOC and catchment flow"))
+# 
+# plotmag_coh_dr(coh_doc_so4, sigthresh = 0.95); title(expression(bold("DOC and SO"["4"]^" 2–")))
+# coh_doc_so4 <- bandtest(coh_doc_so4, c(48, 72))
+# plotmag_coh_dr(coh_doc_so4, sigthresh = 0.95); title(expression(bold("DOC and SO"["4"]^" 2–")))
+# 
+# plotmag_coh_dr(coh_doc_dief, sigthresh = 0.95); title(expression(bold("DOC and Lake Diefenbaker outflow")))
+# coh_doc_dief <- bandtest(coh_doc_dief, c(96, 120))
+# plotmag_coh_dr(coh_doc_dief, sigthresh = 0.95); title(expression(bold("DOC and Lake Diefenbaker outflow")))
 
 
 # Coherence and phase (trial run) -----------------------------------------

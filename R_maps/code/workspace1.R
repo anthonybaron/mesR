@@ -208,7 +208,8 @@ p_bqd +
 lake_labs <- tibble::tribble(
   ~"label",             ~"latitude", ~"longitude",
   "L.\nDiefenbaker",    51.06,       -106.55,
-  "Buffalo\nPound\nL.", 50.67,        -105.54,  
+  "Buffalo\nPound\nL.", 50.67,       -105.54,
+  "Eyebrow\nL.",        50.95,       -106.18
 )
 
 river_labs <- tibble::tribble(
@@ -304,87 +305,11 @@ catchment_plot <- ggplot() +
         plot.background = element_rect(fill = "transparent")) + 
   labs(x = NULL, y = NULL)
 
-bplake_plot <- ggplot() +
-  geom_sf(data = g005, col = NA) +
-  geom_sf(data = e005, fill = viridisgreen, col = "grey60", alpha = 1/5) +
-  geom_sf(data = bpd, col = colblue, size = 1.5) + 
-  geom_sf(data = bpd, fill = fillblue, col = NA) +
-  geom_sf(data = qpr_all, col = colblue, size = 1) +
-  geom_sf(data = g005, size = 0.75,  fill = NA, col = "grey40") + 
-  geom_point(data = sites, aes(longitude, latitude, fill = site_code_long), 
-             shape = 23, size = 3.5, col = "black") + 
-  # scale_color_viridis_d(option = 'plasma') + 
-  scale_fill_viridis_d(begin = 0.2, end = 0.8, option = 'plasma') + 
-  coord_sf(xlim = c(-105.67, -105.33), ylim = c(50.57, 50.76)) +
-  theme(panel.grid = element_blank(),
-        panel.border = element_rect(size = 1),
-        legend.position = c(0.8, 0.75),
-        legend.text = element_text(size = 11),
-        legend.background = element_rect(color = "#323232", size = 0.35),
-        legend.title=element_blank(),
-        legend.margin = margin(c(0, 5, 5, 5))) + 
-  labs(x = NULL, y = NULL, fill = NULL) + 
-  annotation_scale(location = "bl", width_hint = 0.4, text_cex = 0.75,
-                   height = unit(0.2, "cm")) + 
-  annotation_north_arrow(pad_x = unit(0.4, "cm"), pad_y = unit(0.8, "cm"), 
-                         width = unit(1.25, "cm"), height = unit(1.4, "cm"),
-                         style = north_arrow_orienteering(fill = c("white", "black"), text_size = 7)) 
-
-p_outname <- "./R_maps/outputs/figures/"
-dd <- "20220815_"
-ggsave(paste0(p_outname, dd, "m_catchment.png"), catchment_plot, w = 7, h = 7.5)
-ggsave(paste0(p_outname, dd, "m_bplake.png"), bplake_plot, w = 7, h = 7)
-
-
-
-# workspace ---------------------------------------------------------------
-
-library(rgdal)
-library(geojsonio)
-library(spdplyr)
-library(rmapshaper)
-
-canada_raw <- rgdal::readOGR(dsn = "~/Downloads/gpr_000b11a_e/", layer = "gpr_000b11a_e")
-
-canada_raw_json <- geojson_json(canada_raw)
-
-
-canada_raw_sim <- ms_simplify(canada_raw_json)
-
-geojson_write(canada_raw_sim, file = "~/Downloads/gpr_000b11a_e/canada_cd_sim.geojson")
-
-install.packages("sf")
-install.packages("rgdal")
-install.packages("geojsonio")
-install.packages("spdplyr")
-install.packages("rmapshaper")
-
-
-
-
-
-
-# extras ------------------------------------------------------------------
-
-
-
-ggplot() + 
-  geom_sf(data = cda) + 
-  coord_sf()
-
+# add map of Canada inset
 cda <- select(cda, PRUID, PRENAME, geometry)
-
-View(cda)
-
-
 cda <- mapcan(boundaries = province, type = standard) %>% as_tibble()
-
 cda_sf <- st_as_sf(x = cda, coords = c("long", "lat"), crs = 3857) %>% st_transform(crs = 4269)
 cda_df <- as_tibble(cda_sf)
-
-
-
-
 
 pgon1 <- tibble::tribble(
   ~"point",       ~"long", ~"lat", 
@@ -404,65 +329,146 @@ canada_plot <- cda %>%
   geom_polygon(data = cda, aes(x = long, y = lat, group = group), col = "grey60", fill = "grey90", alpha = 1/4) + 
   coord_fixed() +
   geom_polygon(data = pgon1, aes(long, lat), fill = "pink", col = "black") +
-  #
-  #
-  # geom_text(data = canlab, aes(long, lat, label = label),
-  #           size = 3.1, angle = 350, fontface = "bold", col = "white") +
-  # geom_text(data = canlab, aes(long, lat, label = label),
-  #           size = 3.2, angle = 350, fontface = "bold", col = "white") +
-  # geom_text(data = canlab, aes(long, lat, label = label),
-  #           size = 3.3, angle = 350, fontface = "bold", col = "white") +
-  # geom_text(data = canlab, aes(long, lat, label = label), nudge_y = 0.002,
-  #           size = 3.4, angle = 350, fontface = "bold", col = "white") +
-  # geom_text(data = canlab, aes(long, lat, label = label), nudge_y = 0.002,
-  #           size = 3.5, angle = 350, fontface = "bold", col = "white") +
-  # geom_text(data = canlab, aes(long, lat, label = label), nudge_y = 0.002,
-  #           size = 3.6, angle = 350, fontface = "bold", col = "white") +
-  #
-  #
   geom_text(data = canlab, aes(long, lat, label = label),
             size = 3, angle = 349, fontface = "bold", col = "black") +
-  #
-  #
   theme(axis.text = element_blank(),
         axis.ticks = element_blank(),
         panel.border = element_blank()) + 
   labs(x = NULL, y = NULL)
 
-catchment_plot <- catchment_plot + inset_element(canada_plot,
-                                                 left = 0.63, 
-                                                 bottom = 0.63,
-                                                 right = 1, 
-                                                 top = 1,
-                                                 on_top = FALSE)
+catchment_plot <- catchment_plot + 
+  inset_element(canada_plot,
+                left = 0.63, 
+                bottom = 0.63,
+                right = 1, 
+                top = 1,
+                on_top = FALSE)
+
+#
+#
+#
+
+# lake plot
+sites$site_abbr <- dplyr::case_when(
+  sites$site_code_long == "Lake Inflow" ~ "B1.7",
+  sites$site_code_long == "Upstream Causeway" ~ "B3.8",
+  sites$site_code_long == "Below Causeway" ~ "B5.2",
+  sites$site_code_long == "Opposite South Lake" ~ "B9.0",
+  sites$site_code_long == "Opposite Sun Valley" ~ "B13.0",
+  sites$site_code_long == "Opposite Parkview" ~ "B19.8",
+  sites$site_code_long == "WTP Intake" ~ "B25.2",
+  sites$site_code_long == "Above Outlet" ~ "B29.1",
+)
+
+sites$dist_km <- dplyr::case_when(
+  sites$site_code_long == "Lake Inflow" ~ 1.71,
+  sites$site_code_long == "Upstream Causeway" ~ 3.75,
+  sites$site_code_long == "Below Causeway" ~ 5.241089,
+  sites$site_code_long == "Opposite South Lake" ~ 8.986356,
+  sites$site_code_long == "Opposite Sun Valley" ~ 13.012424,
+  sites$site_code_long == "Opposite Parkview" ~ 19.805607,
+  sites$site_code_long == "WTP Intake" ~ 25.241939,
+  sites$site_code_long == "Above Outlet" ~ 29.085310,
+)
+
+sites <- select(sites, site_code_long, site_abbr, latitude, longitude, dist_km)
+sites$site_abbr <- factor(sites$site_abbr, 
+                          levels = c("B1.7", "B3.8", "B5.2", "B9.0", 
+                                     "B13.0", "B19.8", "B25.2", "B29.1"))
+
+bplake_plot <- ggplot() +
+  geom_sf(data = g005, col = NA) +
+  geom_sf(data = e005, fill = viridisgreen, col = "grey60", alpha = 1/5) +
+  geom_sf(data = bpd, col = colblue, size = 1.5) + 
+  geom_sf(data = bpd, fill = fillblue, col = NA) +
+  geom_sf(data = qpr_all, col = colblue, size = 1) +
+  geom_sf(data = g005, size = 0.75,  fill = NA, col = "grey40") + 
+  geom_point(data = sites, aes(longitude, latitude, fill = site_abbr),
+             shape = 23, size = 3.5, col = "white") +
+  geom_point(data = sites, aes(longitude, latitude, fill = site_abbr),
+             shape = 23, size = 3.8, col = "black") +
+  scale_fill_viridis_d(begin = 0.2, end = 0.8, option = 'viridis') + 
+  coord_sf(xlim = c(-105.67, -105.33), ylim = c(50.57, 50.76)) +
+  theme(panel.grid = element_blank(),
+        panel.border = element_rect(size = 1),
+        legend.position = c(0.875, 0.75),
+        legend.text = element_text(size = 11),
+        # legend.background = element_rect(color = "#323232", size = 0.35),
+        legend.title = element_text(face = "bold"),
+        # legend.title.align = -0.5,
+        legend.margin = margin(c(5, 5, 5, 5))) + 
+  labs(x = NULL, y = NULL, fill = "Sampling\nLocation") + 
+  annotation_scale(location = "bl", width_hint = 0.4, text_cex = 0.75,
+                   height = unit(0.2, "cm")) + 
+  annotation_north_arrow(pad_x = unit(0.4, "cm"), pad_y = unit(0.8, "cm"), 
+                         width = unit(1.25, "cm"), height = unit(1.4, "cm"),
+                         style = north_arrow_orienteering(fill = c("white", "black"), text_size = 7)) 
+
+p_outname <- "./R_maps/outputs/figures/"
+dd <- "20220926_"
+ggsave(paste0(p_outname, dd, "m_catchment.png"), catchment_plot, w = 7, h = 7.5)
+ggsave(paste0(p_outname, dd, "m_bplake.png"), bplake_plot, w = 7, h = 7)
+
+
+
+# workspace ---------------------------------------------------------------
+
+# library(rgdal)
+# library(geojsonio)
+# library(spdplyr)
+# library(rmapshaper)
+# 
+# canada_raw <- rgdal::readOGR(dsn = "~/Downloads/gpr_000b11a_e/", layer = "gpr_000b11a_e")
+# 
+# canada_raw_json <- geojson_json(canada_raw)
+# 
+# 
+# canada_raw_sim <- ms_simplify(canada_raw_json)
+# 
+# geojson_write(canada_raw_sim, file = "~/Downloads/gpr_000b11a_e/canada_cd_sim.geojson")
+# 
+# install.packages("sf")
+# install.packages("rgdal")
+# install.packages("geojsonio")
+# install.packages("spdplyr")
+# install.packages("rmapshaper")
+
+
+
+
+
+
+# extras ------------------------------------------------------------------
+
+
   
 
 
 # 13U 464652.1303487 5611023.7189501
 
-ggplot() + 
-  geom_map(aes("Canada"))
- 
-map_data("world", "Canada") %>% 
-  ggplot(aes(long, lat)) + 
-  geom_polygon()
-
-library(spData)
-
-?world()
-
-spData::world
-
-ww <- st_read(system.file("shapes/world.gpkg", package = "spData"))
-
-cc <- subset(ww, name_long == "Canada")
-cc <- st_transform(cc, crs = 4269)
-
-ggplot() + 
-  geom_sf(data = cc, fill = "white") + 
-  geom_sf(data = north_carolina_2163_bb, fill = NA, color = "red", size = 1.2) +
-  theme_void()
-
-library(raster)
-cc <- getData("GADM", country = "CAN", level = 1)
-plot(cc)
+# ggplot() + 
+#   geom_map(aes("Canada"))
+#  
+# map_data("world", "Canada") %>% 
+#   ggplot(aes(long, lat)) + 
+#   geom_polygon()
+# 
+# library(spData)
+# 
+# ?world()
+# 
+# spData::world
+# 
+# ww <- st_read(system.file("shapes/world.gpkg", package = "spData"))
+# 
+# cc <- subset(ww, name_long == "Canada")
+# cc <- st_transform(cc, crs = 4269)
+# 
+# ggplot() + 
+#   geom_sf(data = cc, fill = "white") + 
+#   geom_sf(data = north_carolina_2163_bb, fill = NA, color = "red", size = 1.2) +
+#   theme_void()
+# 
+# library(raster)
+# cc <- getData("GADM", country = "CAN", level = 1)
+# plot(cc)
