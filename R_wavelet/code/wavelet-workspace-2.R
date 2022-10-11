@@ -8,7 +8,7 @@ library(patchwork)
 library(cowplot)
 library(gridGraphics)
 
-theme_set(theme_bw(base_size = 12) + theme(panel.background = element_blank())) 
+theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank())) 
 options(digits = 3)
 
 # Source data -------------------------------------------------------------
@@ -21,59 +21,129 @@ bb <- bp_drivers1 %>%
   group_by(year) %>% 
   summarise(DOC_mg.L = mean(DOC_mg.L),
             SO4_mg.L = mean(SO4_mg.L),
+            TP_ug.L = mean(TP_ug.L), 
+            SRP_ug.L = mean(SRP_ug.L), 
+            chla_ug.L = mean(chla_ug.L),
+            NO3_mg.L = mean(NO3_mg.L),
+            NH3_mg.L = mean(NH3_mg.L), 
             dief = mean(SK05JG006_cms),
             bp = mean(SK05JG004_combined_cms),
-            tp = mean(TP_ug.L),
             cat = mean(RC_IC_cms))
+
+bb$date_ymd <- paste0(bb$year, "-06-01")
+bb$date_ymd <- ymd(bb$date_ymd)
+
+bp_drivers1 %>% 
+  ggplot(aes(date_ymd, DOC_mg.L)) + 
+  geom_line(size = 1, col = "grey70") + 
+  geom_line(data = bb, aes(date_ymd, DOC_mg.L), col = "steelblue", size = 1)
+
+bp_drivers1 %>% 
+  ggplot(aes(date_ymd, RC_IC_cms)) + 
+  geom_line(size = 1, col = "grey70") + 
+  geom_line(data = bb, aes(date_ymd, cat), col = "steelblue", size = 1)
+  
   
 tt <- rep(1:length(bb$year)) # length of time series (dates)
-dd <- bb$DOC_mg.L
-ss <- bb$SO4_mg.L
-ii <- bb$bp
-uu <- bb$dief
-pp <- bb$tp
-cc <- bb$cat
-  
-ddc <- cleandat(dat = dd, times = tt, clev = 5)
-ssc <- cleandat(dat = ss, times = tt, clev = 5)
-iic <- cleandat(dat = ii, times = tt, clev = 5)
-uuc <- cleandat(dat = uu, times = tt, clev = 5)
-ppc <- cleandat(dat = pp, times = tt, clev = 5)
-ccc <- cleandat(dat = cc, times = tt, clev = 5)
+doc <- bb$DOC_mg.L
+so4 <- bb$SO4_mg.L
+tp <- bb$TP_ug.L
+srp <- bb$SRP_ug.L
+chla <- bb$chla_ug.L
+no3 <- bb$NO3_mg.L
+nh3 <- bb$NH3_mg.L
+dief <- bb$dief
+bp <- bb$bp
+lcat <- bb$cat
 
-ddw <- wt(ddc$cdat, tt)
-ssw <- wt(ssc$cdat, tt)
-iiw <- wt(iic$cdat, tt)
-uuw <- wt(uuc$cdat, tt)
-ppw <- wt(ppc$cdat, tt)
-ccw <- wt(ccc$cdat, tt)
+docc <- cleandat(dat = doc, times = tt, clev = 5)
+so4c <- cleandat(dat = so4, times = tt, clev = 5)
+tpc <- cleandat(dat = tp, times = tt, clev = 5)
+srpc <- cleandat(dat = srp, times = tt, clev = 5)
+chlac <- cleandat(dat = chla, times = tt, clev = 5)
+no3c <- cleandat(dat = no3, times = tt, clev = 5)
+nh3c <- cleandat(dat = nh3, times = tt, clev = 5)
+diefc <- cleandat(dat = dief, times = tt, clev = 5)
+bpc <- cleandat(dat = bp, times = tt, clev = 5)
+lcatc <- cleandat(dat = lcat, times = tt, clev = 5)
 
-par(mfrow = c(2, 3))
-plotmag(ddw); title("DOC")
-plotmag(ssw); title("SO4")
-plotmag(ppw); title("TP")
-plotmag(uuw); title("Dief")
-plotmag(ccw); title("Catchment")
-plotmag(iiw); title("BP")
+docw <- wt(docc$cdat, tt)
+so4w <- wt(so4c$cdat, tt)
+tpw <- wt(tpc$cdat, tt)
+srpw <- wt(srpc$cdat, tt)
+chlaw <- wt(chlac$cdat, tt)
+no3w <- wt(no3c$cdat, tt)
+nh3w <- wt(nh3c$cdat, tt)
+diefw <- wt(diefc$cdat, tt)
+bpw <- wt(bpc$cdat, tt)
+lcatw <- wt(lcatc$cdat, tt)
 
-ddss <- coh(ddc$cdat, ssc$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
-ddpp <- coh(ddc$cdat, ppc$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
-dduu <- coh(ddc$cdat, uuc$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
-ddcc <- coh(ddc$cdat, ccc$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
-ddii <- coh(ddc$cdat, iic$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
+laymat <- matrix(1, nrow = 3, ncol = 3)
+laymat[1, ] <- 1:3
+laymat[2, ] <- 4:6
+laymat[3, ] <- 7:9
+layout(laymat)
+par(mar = c(5, 5, 2, 5), mgp = c(3, 1, 0), oma = c(0, 0, 0, 0))
+plotmag(docw); title("DOC")
+plotmag(so4w); title("SO4")
+plotmag(tpw); title("TP")
+plotmag(srpw); title("SRP")
+plotmag(chlaw); title("Chl a")
+plotmag(no3w); title("NO3")
+plotmag(no3w); title("NH3")
+plotmag(diefw); title("Dief")
+plotmag(bpw); title("BP")
+plotmag(lcatw); title("LC")
 
-par(mfrow = c(2, 3))
-plotmag(ddss, sigthresh = 0.95); title("DOC-SO4")
-plotmag(ddpp, sigthresh = 0.95); title("DOC-TP")
-plotmag(dduu, sigthresh = 0.95); title("DOC-Dief")
-plotmag(ddcc, sigthresh = 0.95); title("DOC-Catchment")
-plotmag(ddii, sigthresh = 0.95); title("DOC-BP")
+dso4 <- coh(docc$cdat, so4c$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
+dtp <- coh(docc$cdat, tpc$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
+dsrp <- coh(docc$cdat, srpc$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
+dchla <- coh(docc$cdat, chlac$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
+dno3 <- coh(docc$cdat, no3c$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
+dnh3 <- coh(docc$cdat, nh3c$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
+ddief <- coh(docc$cdat, diefc$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
+dbp <- coh(docc$cdat, bpc$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
+dlcat <- coh(docc$cdat, lcatc$cdat, tt, norm = "powall", sigmethod = "fast", nrand = 10000)
 
-plotrank(ddss, sigthresh = 0.95); title("DOC-SO4")
-plotrank(ddpp, sigthresh = 0.95); title("DOC-TP")
-plotrank(dduu, sigthresh = 0.95); title("DOC-Dief")
-plotrank(ddcc, sigthresh = 0.95); title("DOC-Catchment")
-plotrank(ddii, sigthresh = 0.95); title("DOC-BP")
+cohcoh <- list(
+  so4 = dso4,
+  tp = dtp, 
+  srp = dsrp,
+  chla = dchla,
+  no3 = dno3,
+  nh3 = dnh3,
+  dief = ddief,
+  bp = dbp,
+  lcat = dlcat
+)
+band1 <- c(2, 4)
+band2 <- c(4, Inf)
+cohcoh <- lapply(FUN = function(x){bandtest(object = x, band = band2)}, X = cohcoh)
+cohcoh <- lapply(FUN = function(x){bandtest(object = x, band = band1)}, X = cohcoh)
+
+layout(laymat)
+par(mar = c(5, 5, 2, 5), mgp = c(3, 1, 0), oma = c(0, 0, 0, 0))
+plotmag(cohcoh$so4, sigthresh = 0.95); title("DOC-SO4")
+plotmag(cohcoh$tp, sigthresh = 0.95); title("DOC-TP")
+plotmag(cohcoh$srp, sigthresh = 0.95); title("DOC-SRP")
+plotmag(cohcoh$chla, sigthresh = 0.95); title("DOC-Chl a")
+plotmag(cohcoh$no3, sigthresh = 0.95); title("DOC-NO3")
+plotmag(cohcoh$nh3, sigthresh = 0.95); title("DOC-NH3")
+plotmag(cohcoh$dief, sigthresh = 0.95); title("DOC-Dief")
+plotmag(cohcoh$bp, sigthresh = 0.95); title("DOC-BP")
+plotmag(cohcoh$lcat, sigthresh = 0.95); title("DOC-LC")
+
+layout(laymat)
+par(mar = c(5, 5, 2, 5), mgp = c(3, 1, 0), oma = c(0, 0, 0, 0))
+plotrank(dso4, sigthresh = 0.95); title("DOC-SO4")
+plotrank(dtp, sigthresh = 0.95); title("DOC-TP")
+plotrank(dsrp, sigthresh = 0.95); title("DOC-SRP")
+plotrank(dchla, sigthresh = 0.95); title("DOC-Chl a")
+plotrank(dno3, sigthresh = 0.95); title("DOC-NO3")
+plotrank(dnh3, sigthresh = 0.95); title("DOC-NH3")
+plotrank(ddief, sigthresh = 0.95); title("DOC-Dief")
+plotrank(dbp, sigthresh = 0.95); title("DOC-BP")
+plotrank(dlcat, sigthresh = 0.95); title("DOC-LC")
 
 plotphase(ddss, sigthresh = 0.95); title("DOC-SO4")
 plotphase(ddpp, sigthresh = 0.95); title("DOC-TP")

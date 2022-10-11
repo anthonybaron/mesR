@@ -720,4 +720,212 @@ plotphase(res_doc_BPinflow)
 
 
 
+# Coherence: Analytes and flow --------------------------------------------
+
+# Evaluate coherence between analytes and flow using wsyn::coh.
+coh_tp_bp_inflow <- coh(dat1 = ts_bp_inflow_cleandat, dat2 = ts_tp_cleandat, times = ts_times, 
+                        norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                        scale.max.input = 120)
+coh_srp_bp_inflow <- coh(dat1 = ts_bp_inflow_cleandat, dat2 = ts_srp_cleandat, times = ts_times, 
+                         norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                         scale.max.input = 120)
+coh_so4_bp_inflow <- coh(dat1 = ts_bp_inflow_cleandat, dat2 = ts_so4_cleandat, times = ts_times, 
+                         norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                         scale.max.input = 120)
+coh_don_bp_inflow <- coh(dat1 = ts_bp_inflow_cleandat, dat2 = ts_don_cleandat, times = ts_times, 
+                         norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                         scale.max.input = 120)
+coh_no3_bp_inflow <- coh(dat1 = ts_bp_inflow_cleandat, dat2 = ts_no3_cleandat, times = ts_times, 
+                         norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                         scale.max.input = 120)
+coh_nh3_bp_inflow <- coh(dat1 = ts_bp_inflow_cleandat, dat2 = ts_nh3_cleandat, times = ts_times, 
+                         norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                         scale.max.input = 120)
+
+
+coh_tp_dief <- coh(dat1 = ts_dief_cleandat, dat2 = ts_tp_cleandat, times = ts_times, 
+                   norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                   scale.max.input = 120)
+coh_srp_dief <- coh(dat1 = ts_dief_cleandat, dat2 = ts_srp_cleandat, times = ts_times, 
+                    norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                    scale.max.input = 120)
+coh_so4_dief <- coh(dat1 = ts_dief_cleandat, dat2 = ts_so4_cleandat, times = ts_times, 
+                    norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                    scale.max.input = 120)
+coh_don_dief <- coh(dat1 = ts_dief_cleandat, dat2 = ts_don_cleandat, times = ts_times, 
+                    norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                    scale.max.input = 120)
+coh_no3_dief <- coh(dat1 = ts_dief_cleandat, dat2 = ts_no3_cleandat, times = ts_times, 
+                    norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                    scale.max.input = 120)
+coh_nh3_dief <- coh(dat1 = ts_dief_cleandat, dat2 = ts_nh3_cleandat, times = ts_times, 
+                    norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                    scale.max.input = 120)
+
+coh_tp_rc_ic <- coh(dat1 = ts_rc_ic_cleandat, dat2 = ts_tp_cleandat, times = ts_times, 
+                    norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                    scale.max.input = 120)
+coh_srp_rc_ic <- coh(dat1 = ts_rc_ic_cleandat, dat2 = ts_srp_cleandat, times = ts_times, 
+                     norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                     scale.max.input = 120)
+coh_so4_rc_ic <- coh(dat1 = ts_rc_ic_cleandat, dat2 = ts_so4_cleandat, times = ts_times, 
+                     norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                     scale.max.input = 120)
+coh_don_rc_ic <- coh(dat1 = ts_rc_ic_cleandat, dat2 = ts_don_cleandat, times = ts_times, 
+                     norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                     scale.max.input = 120)
+coh_no3_rc_ic <- coh(dat1 = ts_rc_ic_cleandat, dat2 = ts_no3_cleandat, times = ts_times, 
+                     norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                     scale.max.input = 120)
+coh_nh3_rc_ic <- coh(dat1 = ts_rc_ic_cleandat, dat2 = ts_nh3_cleandat, times = ts_times, 
+                     norm = "powall", sigmethod = "fast", nrand = 10000, f0 = 0.5,
+                     scale.max.input = 120)
+
+
+# TP and flow
+par(mfrow = c(1, 3))
+plotmag(coh_tp_dief, sigthresh = 0.95); title("TP and Diefenbaker outflow")
+plotmag(coh_tp_rc_ic, sigthresh = 0.95); title("TP and catchment flow")
+# plotmag(coh_tp_bp_inflow, sigthresh = 0.95); title("TP and BP inflow")
+
+# SRP and flow
+par(mfrow = c(1, 3))
+plotmag(coh_srp_dief, sigthresh = 0.95); title("SRP and Diefenbaker outflow")
+# plotmag(coh_srp_rc_ic, sigthresh = 0.95); title("SRP and catchment flow")
+plotmag(coh_srp_bp_inflow, sigthresh = 0.95); title("SRP and BP inflow")
+
+# SO4 and flow
+par(mfrow = c(1, 3))
+plotmag(coh_so4_dief, sigthresh = 0.95); title("SO4 and Diefenbaker outflow")
+plotmag(coh_so4_rc_ic, sigthresh = 0.95); title("SO4 and catchment flow")
+plotmag(coh_so4_bp_inflow, sigthresh = 0.95); title("SO4 and BP inflow")
+
+# Organic N and flow
+par(mfrow = c(1, 3))
+plotmag(coh_don_dief, sigthresh = 0.95); title("Organic N and Diefenbaker outflow")
+plotmag(coh_don_rc_ic, sigthresh = 0.95); title("Organic N and catchment flow")
+plotmag(coh_don_bp_inflow, sigthresh = 0.95); title("Organic N and BP inflow")
+
+# NO3 and flow
+par(mfrow = c(1, 3))
+plotmag(coh_no3_dief, sigthresh = 0.95); title("NO3 and Diefenbaker outflow")
+plotmag(coh_no3_rc_ic, sigthresh = 0.95); title("NO3 and catchment flow")
+# plotmag(coh_no3_bp_inflow, sigthresh = 0.95); title("NO3 and BP inflow")
+
+# NH3 and flow
+par(mfrow = c(1, 3))
+plotmag(coh_nh3_dief, sigthresh = 0.95); title("NH3 and Diefenbaker outflow")
+plotmag(coh_nh3_rc_ic, sigthresh = 0.95); title("NH3 and catchment flow")
+plotmag(coh_nh3_bp_inflow, sigthresh = 0.95); title("NH3 and BP inflow")
+
+
+# Significance testing ----------------------------------------------------
+
+# 1
+plotmag(coh_doc_so4, sigthresh = 0.95); title("DOC and sulphate")
+coh_doc_so4 <- bandtest(coh_doc_so4, c(8, 120))
+coh_doc_so4 <- bandtest(coh_doc_so4, c(2, 3))
+plotmag(coh_doc_so4, sigthresh = 0.95)
+title("DOC and sulphate\n 2–3 and 8–120 months")
+
+coh_doc_so4$bandp <- NA
+
+# 2
+plotmag(coh_doc_tp, sigthresh = 0.95); title("DOC and TP")
+coh_doc_tp <- bandtest(coh_doc_tp, c(2, 60))
+plotmag(coh_doc_tp, sigthresh = 0.95)
+title("DOC and total phosphorus\n 2–60 months")
+
+coh_doc_tp$bandp <- NA
+
+
+# 3
+plotmag(coh_doc_srp, sigthresh = 0.95); title("DOC and soluble reactive phosphorus")
+coh_doc_srp <- bandtest(coh_doc_srp, c(27, 50))
+plotmag(coh_doc_srp, sigthresh = 0.95)
+title("DOC and soluble reactive phosphorus\n 27–50 months")
+
+coh_doc_srp$bandp <- NA
+
+# 4
+plotmag(coh_doc_don, sigthresh = 0.95); title("DOC and organic nitrogen")
+coh_doc_don <- bandtest(coh_doc_don, c(2, 120))
+title("DOC and organic nitrogen\n 2–120 months")
+
+coh_doc_don$bandp <- NA
+
+# 5
+plotmag(coh_doc_nh3, sigthresh = 0.95); title("DOC and ammonia")
+coh_doc_nh3 <- bandtest(coh_doc_nh3, c(3, 20))
+plotmag(coh_doc_nh3, sigthresh = 0.95)
+title("DOC and ammonia\n 3–20 months")
+
+coh_doc_nh3$bandp <- NA
+
+# 6 
+plotmag(coh_doc_no3, sigthresh = 0.95); title("DOC and nitrate")
+
+coh_doc_no3$bandp <- NA
+
+
+
+
+
+plotmag(coh_doc_bp_inflow, sigthresh = 0.95); title("DOC and BP inflow")
+plotmag(coh_doc_dief, sigthresh = 0.95); title("DOC and Diefenbaker outflow")
+plotmag(coh_doc_rc_ic, sigthresh = 0.95); title("DOC and catchment flow")
+
+plotmag(coh_tp_dief, sigthresh = 0.95); title("TP and Diefenbaker outflow")
+plotmag(coh_tp_rc_ic, sigthresh = 0.95); title("TP and catchment flow")
+# plotmag(coh_tp_bp_inflow, sigthresh = 0.95); title("TP and BP inflow")
+
+plotmag(coh_srp_dief, sigthresh = 0.95); title("SRP and Diefenbaker outflow")
+# plotmag(coh_srp_rc_ic, sigthresh = 0.95); title("SRP and catchment flow")
+plotmag(coh_srp_bp_inflow, sigthresh = 0.95); title("SRP and BP inflow")
+
+plotmag(coh_so4_dief, sigthresh = 0.95); title("SO4 and Diefenbaker outflow")
+plotmag(coh_so4_rc_ic, sigthresh = 0.95); title("SO4 and catchment flow")
+plotmag(coh_so4_bp_inflow, sigthresh = 0.95); title("SO4 and BP inflow")
+
+plotmag(coh_don_dief, sigthresh = 0.95); title("Organic N and Diefenbaker outflow")
+plotmag(coh_don_rc_ic, sigthresh = 0.95); title("Organic N and catchment flow")
+plotmag(coh_don_bp_inflow, sigthresh = 0.95); title("Organic N and BP inflow")
+
+plotmag(coh_no3_dief, sigthresh = 0.95); title("NO3 and Diefenbaker outflow")
+plotmag(coh_no3_rc_ic, sigthresh = 0.95); title("NO3 and catchment flow")
+# plotmag(coh_no3_bp_inflow, sigthresh = 0.95); title("NO3 and BP inflow")
+
+plotmag(coh_nh3_dief, sigthresh = 0.95); title("NH3 and Diefenbaker outflow")
+plotmag(coh_nh3_rc_ic, sigthresh = 0.95); title("NH3 and catchment flow")
+plotmag(coh_nh3_bp_inflow, sigthresh = 0.95); title("NH3 and BP inflow")
+
+par(mfrow = c(9, 3))
+
+
+library(mgcv)
+library(gratia)
+
+gam()
+
+# hist(bp_drivers$DOC_mg.L)
+hist(log(bp_drivers$DOC_mg.L))
+# hist(sqrt(bp_drivers$DOC_mg.L))
+
+# hist(bp_drivers$TP_ug.L)
+# hist(log(bp_drivers$TP_ug.L))
+hist(sqrt(bp_drivers$TP_ug.L))
+
+# hist(bp_drivers$SO4_mg.L)
+hist(log(bp_drivers$SO4_mg.L))
+# hist(sqrt(bp_drivers$SO4_mg.L)
+
+
+bpdocw <- DOC_complete_1990_2019()
+
+bpdocw %>% 
+  summarise(median = median(DOC_mg.L),
+            min = min(DOC_mg.L),
+            max = max(DOC_mg.L))
+
+
 
