@@ -22,20 +22,20 @@ bp_longterm_TP <- clean_bp_longterm() %>% filter(parameter == "Phosphate (total)
 bp_historical_TP <- clean_bp_historical() %>% filter(parameter == "Phosphate (total)") # n = 1574, NAs = 785
 bp_masterfile_TP <- clean_bp_masterfile() %>% filter(parameter == "Phosphate (total)") # n = 1461, NAs = 696
 
-bp_longterm_TP %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
-
-bp_historical_TP %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
-
-bp_masterfile_TP %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
+# bp_longterm_TP %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
+# 
+# bp_historical_TP %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
+# 
+# bp_masterfile_TP %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
 
 
 TP_2001 <- read_excel("./R_data-cleaning/bpwtp/data/raw/ROUTINE LAB DATA 2001(v2).xlsx",
@@ -60,10 +60,19 @@ bp_longterm_TP_infill %>%
   facet_wrap(~ year) +
   geom_point()
 
+bp_longterm_TP_infill %>% 
+  filter(!is.na(result)) %>% 
+  group_by(year) %>% 
+  summarise(n = n()) %>% 
+  mutate(rate_d = n / 365,
+         rate_w = n / 52,
+         rate_m = n / 12) 
+
 bp_TP_month <- bp_longterm_TP_infill %>% 
   group_by(year, month) %>% 
   summarise(TP_ug.L = mean(result, na.rm = TRUE)) %>% 
-  ungroup()
+  ungroup() %>% 
+  mutate(TP_ug.L = ifelse(year == 2009 & month == 5, 49, TP_ug.L))
 
 bp_TP_month %>% filter(is.na(TP_ug.L))
 # A tibble: 9 × 3
@@ -79,14 +88,17 @@ bp_TP_month %>% filter(is.na(TP_ug.L))
 # 8  2004     7     NaN
 # 9  2017    12     NaN
 
-median_monthly_TP <- bp_TP_month %>% 
-  group_by(month) %>%
-  summarise(median_TP = median(TP_ug.L, na.rm = TRUE))
+bp_TP_month <- bp_TP_month %>% 
+  mutate(TP_ug.L = case_when(
+    is.na(TP_ug.L) & year %in% c(2003:2004) ~ mean(c(43, 94)),
+    is.na(TP_ug.L) & year == 2017 ~ mean(c(65, 56)),
+    TRUE ~ as.numeric(TP_ug.L)
+  ))
 
 bp_TP_monthly <- function(df = bp_TP_month) {
   
   bp_TP_cc <- df %>% 
-    mutate(TP_ug.L = ifelse(is.na(TP_ug.L), median_monthly_TP$median_TP, TP_ug.L)) %>% 
+    # mutate(TP_ug.L = ifelse(is.na(TP_ug.L), median_monthly_TP$median_TP, TP_ug.L)) %>% 
     unite("year_month", c(year, month), sep = "-", remove = FALSE) %>% 
     mutate(date_ymd = paste0(year_month, "-01"),
            date_ymd = ymd(date_ymd)) %>% 
@@ -95,6 +107,7 @@ bp_TP_monthly <- function(df = bp_TP_month) {
   return(bp_TP_cc)
   
 }
+
 
 # dftp <- bp_TP_monthly()
 # 

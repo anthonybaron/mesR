@@ -55,27 +55,27 @@ plot_sulphate <- function(years = "") {
   
 }
 
-p_90_94 <- plot_sulphate(years = c(1990:1994))
-p_95_99 <- plot_sulphate(years = c(1995:1999))
-p_00_04 <- plot_sulphate(years = c(2000:2004))
-p_05_09 <- plot_sulphate(years = c(2005:2009))
-p_10_14 <- plot_sulphate(years = c(2010:2014))
-p_15_19 <- plot_sulphate(years = c(2015:2019))
+# p_90_94 <- plot_sulphate(years = c(1990:1994))
+# p_95_99 <- plot_sulphate(years = c(1995:1999))
+# p_00_04 <- plot_sulphate(years = c(2000:2004))
+# p_05_09 <- plot_sulphate(years = c(2005:2009))
+# p_10_14 <- plot_sulphate(years = c(2010:2014))
+# p_15_19 <- plot_sulphate(years = c(2015:2019))
 
-bp_longterm_sulphate %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
-
-bp_historical_sulphate %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
-
-bp_masterfile_sulphate %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
+# bp_longterm_sulphate %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
+# 
+# bp_historical_sulphate %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
+# 
+# bp_masterfile_sulphate %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
 
 
 bp_longterm_sulphate_sans2001 <- bp_longterm_sulphate %>% filter(!year == 2001)
@@ -85,9 +85,17 @@ bp_longterm_sulphate_infill <- bind_rows(bp_longterm_sulphate_sans2001, bp_maste
   arrange(date_ymd)
 
 bp_longterm_sulphate_infill %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
+  filter(!is.na(result)) %>% 
+  group_by(year) %>% 
+  summarise(n = n()) %>% 
+  mutate(rate_d = n / 365,
+         rate_w = n / 52,
+         rate_m = n / 12) 
+
+# bp_longterm_sulphate_infill %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
 
 bp_sulphate_all <- function(df = bp_longterm_sulphate_infill) {
   
@@ -108,11 +116,11 @@ bp_sulphate_month <- bp_longterm_sulphate_infill %>%
 # N = 360 (30 years * 12 months = 360 observations)
 # NAs = 1 (March 2009)
 
-bp_sulphate_month %>% 
-  ggplot(aes(month, SO4_mg.L)) + 
-  facet_wrap(~ year) +
-  geom_line(alpha = 9/10) +
-  geom_point(size = 2)
+# bp_sulphate_month %>% 
+#   ggplot(aes(month, SO4_mg.L)) + 
+#   facet_wrap(~ year) +
+#   geom_line(alpha = 9/10) +
+#   geom_point(size = 2)
 
 
 bp_sulphate_monthly <- function(df = bp_sulphate_month) {

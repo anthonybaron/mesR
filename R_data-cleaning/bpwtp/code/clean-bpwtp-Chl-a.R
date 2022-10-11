@@ -24,6 +24,11 @@ bp_masterfile <- clean_bp_masterfile() %>% filter(parameter == "Chlorophyll a") 
 
 # Cleaning ----------------------------------------------------------------
 
+bp_longterm %>% 
+  ggplot(aes(yday(date_ymd), result)) + 
+  facet_wrap(~ year) + 
+  geom_point()
+
 ll <- bp_longterm %>% 
   filter(parm_unit == "chla_ug.L") %>% 
   group_by(year, month) %>% 

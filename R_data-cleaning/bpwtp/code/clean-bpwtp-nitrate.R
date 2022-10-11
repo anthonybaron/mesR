@@ -57,6 +57,14 @@ bp_longterm_nitrate_infill %>%
   facet_wrap(~ year) +
   geom_point()
 
+bp_longterm_nitrate_infill %>% 
+  filter(!is.na(result)) %>% 
+  group_by(year) %>% 
+  summarise(n = n()) %>% 
+  mutate(rate_d = n / 365,
+         rate_w = n / 52,
+         rate_m = n / 12) 
+
 bp_nitrate_month <- bp_longterm_nitrate_infill %>% 
   group_by(year, month) %>% 
   summarise(NO3_mg.L = mean(result, na.rm = TRUE)) %>% 

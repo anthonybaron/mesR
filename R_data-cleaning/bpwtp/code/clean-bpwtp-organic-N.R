@@ -81,6 +81,14 @@ bp_longterm_organicN_infill <- bind_rows(bp_longterm_organicN_sans2001, organicN
   arrange(date_ymd)
 
 bp_longterm_organicN_infill %>% 
+  filter(!is.na(result_longterm)) %>% 
+  group_by(year) %>% 
+  summarise(n = n()) %>% 
+  mutate(rate_d = n / 365,
+         rate_w = n / 52,
+         rate_m = n / 12) 
+
+bp_longterm_organicN_infill %>% 
   ggplot(aes(yday(date_ymd), result_longterm)) +
   facet_wrap(~ year) +
   geom_point()

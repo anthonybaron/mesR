@@ -21,20 +21,20 @@ bp_longterm_SRP <- clean_bp_longterm() %>% filter(parameter == "Phosphate (ortho
 bp_historical_SRP <- clean_bp_historical() %>% filter(parameter == "Phosphate (ortho)") # n = 1574, NAs = 804
 bp_masterfile_SRP <- clean_bp_masterfile() %>% filter(parameter == "Phosphate (ortho)") # n = 1461, NAs = 794
 
-bp_longterm_SRP %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
-
-bp_historical_SRP %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
-
-bp_masterfile_SRP %>% 
-  ggplot(aes(yday(date_ymd), result)) + 
-  facet_wrap(~ year) +
-  geom_point()
+# bp_longterm_SRP %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
+# 
+# bp_historical_SRP %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
+# 
+# bp_masterfile_SRP %>% 
+#   ggplot(aes(yday(date_ymd), result)) + 
+#   facet_wrap(~ year) +
+#   geom_point()
 
 
 SRP_2001 <- read_excel("./R_data-cleaning/bpwtp/data/raw/ROUTINE LAB DATA 2001(v2).xlsx",
@@ -54,10 +54,10 @@ bp_longterm_SRP_sans2001 <- bp_longterm_SRP %>% filter(!year == 2001)
 bp_longterm_SRP_infill <- bind_rows(bp_longterm_SRP_sans2001, SRP_2001) %>% 
   arrange(date_ymd)
 
-bp_longterm_SRP_infill %>% 
-  ggplot(aes(yday(date_ymd), result)) +
-  facet_wrap(~ year) +
-  geom_point()
+# bp_longterm_SRP_infill %>% 
+#   ggplot(aes(yday(date_ymd), result)) +
+#   facet_wrap(~ year) +
+#   geom_point()
 
 bp_SRP_month <- bp_longterm_SRP_infill %>% 
   group_by(year, month) %>% 
@@ -79,14 +79,26 @@ bp_SRP_month %>% filter(is.na(SRP_ug.L))
 #  9  2015     5      NaN
 # 10  2017    12      NaN
 
-median_monthly_SRP <- bp_SRP_month %>% 
-  group_by(month) %>%
-  summarise(median_SRP = median(SRP_ug.L, na.rm = TRUE))
+bp_SRP_month %>% filter(year %in% 2004) # c(10, 5.82)
+bp_SRP_month %>% filter(year %in% 2015) # c(55, 0)
+bp_SRP_month %>% filter(year %in% 2018) # c(13, 3)
+
+bp_SRP_month <- bp_SRP_month %>% 
+  mutate(SRP_ug.L = case_when(
+    is.na(SRP_ug.L) & year %in% c(2003:2004) ~ mean(c(10, 5.82)),
+    is.na(SRP_ug.L) & year == 2015 ~ mean(c(55, 0)),
+    is.na(SRP_ug.L) & year == 2017 ~ mean(c(13, 3)),
+    TRUE ~ as.numeric(SRP_ug.L)
+  ))
+
+# median_monthly_SRP <- bp_SRP_month %>% 
+#   group_by(month) %>%
+#   summarise(median_SRP = median(SRP_ug.L, na.rm = TRUE))
 
 bp_SRP_monthly <- function(df = bp_SRP_month) {
   
   bp_SRP_cc <- df %>% 
-    mutate(SRP_ug.L = ifelse(is.na(SRP_ug.L), median_monthly_SRP$median_SRP, SRP_ug.L)) %>% 
+    # mutate(SRP_ug.L = ifelse(is.na(SRP_ug.L), median_monthly_SRP$median_SRP, SRP_ug.L)) %>% 
     unite("year_month", c(year, month), sep = "-", remove = FALSE) %>% 
     mutate(date_ymd = paste0(year_month, "-01"),
            date_ymd = ymd(date_ymd)) %>% 
@@ -97,17 +109,17 @@ bp_SRP_monthly <- function(df = bp_SRP_month) {
 }
 
 
-bpsrp <- bp_SRP_monthly()
-
-bpsrp %>%
-  ggplot(aes(yday(date_ymd), SRP_ug.L)) +
-  facet_wrap(~ year) +
-  geom_line(col = "steelblue") +
-  geom_point(col = "white", size = 2) +
-  geom_point(col = "steelblue")
-
-bpsrp %>%
-  ggplot(aes(date_ymd, SRP_ug.L)) +
-  geom_line(col = "steelblue") +
-  geom_point(col = "white", size = 2) +
-  geom_point(col = "steelblue")
+# bpsrp <- bp_SRP_monthly()
+# 
+# bpsrp %>%
+#   ggplot(aes(yday(date_ymd), SRP_ug.L)) +
+#   facet_wrap(~ year) +
+#   geom_line(col = "steelblue") +
+#   geom_point(col = "white", size = 2) +
+#   geom_point(col = "steelblue")
+# 
+# bpsrp %>%
+#   ggplot(aes(date_ymd, SRP_ug.L)) +
+#   geom_line(col = "steelblue") +
+#   geom_point(col = "white", size = 2) +
+#   geom_point(col = "steelblue")
