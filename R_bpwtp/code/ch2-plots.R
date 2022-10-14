@@ -7,7 +7,7 @@ library(patchwork)
 library(viridis)
 library(wsyn)
 
-theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank()))
+theme_set(theme_bw(base_size = 14) + theme(panel.grid = element_blank()))
 
 source("./R_data-cleaning/bpwtp/code/clean-wavelet.R")
 source("./R_data-cleaning/flow-reconstruction/code/clean-flows.R")
@@ -15,10 +15,10 @@ source("./R_data-cleaning/flow-reconstruction/code/clean-flows.R")
 p_outname <- "./R_wavelet/outputs/figures/"
 dd <- "20220928_"
 
+wtdoc <- wt_data()$wt_doc
 bp_drivers <- wavelet_data()
 bp_long <- bp_drivers %>% pivot_longer(cols = -c(date_ymd, year, month), 
                                        names_to = "parameter", values_to = "result")
-
 
 
 ffr <- station_flow_monthly()
@@ -27,6 +27,30 @@ ff <- rename(ff, LD = SK05JG006_cms, LC = RC_IC_cms, BP = SK05JG004_combined_cms
 ff_long <- ff %>% pivot_longer(cols = -c(date_ymd, Month, Year),
                                names_to = "station", values_to = "result")
 
+
+
+
+# Wavelet transform example plot (DOC) ------------------------------------
+
+p1 <- bp_drivers %>% 
+  ggplot(aes(date_ymd, DOC_mg.L)) + 
+  geom_line(size = 1.5, col = "steelblue") + 
+  ylim(c(2.5, NA)) +
+  labs(x = "Year", y = expression(paste("DOC concentration (mg L"^-1*")")))
+
+p2 <- data.frame(x = 1.5:2.5, y = 1.5:2.5) %>%
+  ggplot(aes(x, y)) + 
+  geom_point(col = "transparent") +
+  geom_segment(x = 1.75, y = 2, xend = 2.25, yend = 2,
+              lineend = "butt", 
+              linejoin = "round",
+              size = 5, 
+              arrow = arrow(length = unit(0.5, "inches")),
+              colour = "forestgreen") +
+  annotate("text", x = 2, y = 2.125, label = "Wavelet transform", fontface = "italic", size = 7) +
+  theme_void()
+
+# p3 is the wt plot... 
 
 
 # Wavelet transform example plot ------------------------------------------

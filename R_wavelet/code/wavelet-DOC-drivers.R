@@ -5,8 +5,6 @@ library(tidyr)
 library(ggplot2)
 library(lubridate)
 library(patchwork)
-library(cowplot)
-library(gridGraphics)
 library(spatstat)
 library(rstatix)
 
@@ -853,7 +851,6 @@ cor(mcoh_df$coh, acoh_df$coh, method = "pearson") # 0.84
 cor(lcoh_df$coh, acoh_df$coh, method = "pearson") # 0.84
 
 
-
 # Coherence at <= 1.5 and > 1.5 years -----------------------------------------
 
 # Wavelet transform
@@ -1107,15 +1104,55 @@ min(allcoh$coh) # 0.051
 max(allcoh$coh) # 0.74
 mean(allcoh$coh) # 0.34
 median(allcoh$coh) # 0.31
+min(allcoh$phi) # —3.02 (close to —pi)
+max(allcoh$phi) # 2.98 (close to pi)
+
+min(shortcoh_df$coh) # 0.075
+max(shortcoh_df$coh) # 0.50
+mean(shortcoh_df$coh) # 0.21
+median(shortcoh_df$coh) # 0.15
+min(shortcoh_df$phi) # —3.02 (close to —pi)
+max(shortcoh_df$phi) # 2.98 (close to pi)
+
+min(longcoh_df$coh) # 0.047
+max(longcoh_df$coh) # 0.74
+mean(longcoh_df$coh) # 0.47
+median(longcoh_df$coh) # 0.54
+min(longcoh_df$phi) # —2.13
+max(longcoh_df$phi) # 1.89
 
 min(allcoh_sig$coh) # 0.21
 max(allcoh_sig$coh) # 0.74
 mean(allcoh_sig$coh) # 0.47
 median(allcoh_sig$coh) # 0.50
 
-cor.test(shortcoh_df$coh, longcoh_df$coh) # —0.324
+
+## Cosine -- focuses on how close the relationship b/w DOC and driver is to
+## being in phase
+# 1. in-phase (phi = 0) == 1
+# 2. anti-phase (phi = ± pi) == —1
+# 3. quarter-phase (phi = ± pi/2) == 0
+# 
+## Sine -- focuses on whether the time-lagged relationship b/w DOC and driver 
+## tends to be positive or negative
+# 1. in-phase (phi = 0) and anti-phase (± pi) == 0
+# 2. time-lagged positive (DOC 1/4 cycle behind driver) == —1
+# 3. time-lagged negative (DOC 1/4 cycle ahead of driver) == 1
+#
+### Short
+# SO4   -- cos = —0.428 (anti-phase), sin = —0.904 (time-lagged positive and anti-phase; DOC lags behind SO4 and time-lag is important piece)
+# TP    -- cos =  0.945 (in-phase),   sin =  0.327 (time-lagged negative and in-phase; DOC leads ahead of TP, but in-phase relationship more important)
+# Chl a -- cos =  0.854 (in-phase),   sin =  0.520 (time-lagged negative and in-phase; DOC leads ahead of Chl a, but in-phase relationship more important)
+# NH4   -- cos =  0.987 (in-phase),   sin =  0.163 (time-lagged negative and in-phase; DOC leads ahead of NH4, but in-phase relationship more important)
+# 
+### Long
+# SO4   -- cos =  0.976 (in-phase),   sin = —0.218 (time-lagged positive and in-phase; DOC lags behind SO4, but in-phase relationship more important)
+# TP    -- cos =  0.901 (in-phase),   sin =  0.434 (time-lagged negative and in-phase; DOC leads ahead of TP, but in-phase relationship is important piece)
+# QLD   -- cos = —0.264 (anti-phase), sin = —0.965 (time-lagged positive and anti-phase; DOC lags behind QLD and time-lag is important piece)
+
+cor.test(shortcoh_df$coh, longcoh_df$coh) # r = —0.324, p = 0.4
 plot(shortcoh_df$coh, longcoh_df$coh) # no obvious relationship 
-cor.test(shortcoh_df$pval, longcoh_df$pval) # 0.144
+cor.test(shortcoh_df$pval, longcoh_df$pval) # r = 0.144, p = 0.7
 plot(shortcoh_df$pval, longcoh_df$pval) # no obvious relationship 
 
 tiff("R_wavelet/outputs/figures/p_coherence_histogram.tif",
