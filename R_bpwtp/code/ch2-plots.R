@@ -19,6 +19,12 @@ bp_drivers <- wavelet_data() %>% mutate(SUVA = UV254 / DOC_mg.L * 10)
 bp_long <- bp_drivers %>% pivot_longer(cols = -c(date_ymd, year, month), 
                                        names_to = "parameter", values_to = "result")
 
+bp_drivers %>% 
+  ggplot(aes(yday(date_ymd), DOC_mg.L)) + 
+  facet_wrap(~ year, ncol = 10) + 
+  geom_line()
+# years with distinct seasonal pattern:
+# 1991 (kinda), 1998, 1999, 2004, 2005, 2008, 2010, 2012, 2018, 2019
 
 ffr <- station_flow_monthly()
 ff <- select(ffr, date_ymd, Year, Month, SK05JG004_combined_cms, SK05JG006_cms, RC_IC_cms)
