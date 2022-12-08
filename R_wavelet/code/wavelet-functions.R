@@ -168,10 +168,11 @@ plotmag_coh_dr <- function(object, sigthresh = c(0.95, 0.99), bandprows = "all",
   # if signif is absent, then just plot coher v timescales
   if (any(is.na(signif))) { 
     plot(log(1/timescales), Mod(coher),
-         type = "l", lty = "solid", xaxt = "n", col = "#31688EFF", lwd = 1.5,
+         type = "l", lty = "solid", xaxt = "n", col = "#31688EFF", 
+         lwd = 1.5, cex = 1.2,  
          xlab = "Timescale (months)", ylab = "Coherence")
     xlocs <- c(min(timescales), pretty(timescales, n = 12))
-    graphics::axis(side = 1, at = log(1/xlocs), labels = xlocs) 
+    graphics::axis(side = 1, at = log(1/xlocs), labels = xlocs, cex = 1.2) 
     
     if (!is.na(filename)) {
       grDevices::dev.off()
@@ -191,14 +192,15 @@ plotmag_coh_dr <- function(object, sigthresh = c(0.95, 0.99), bandprows = "all",
   if (any(is.na(bandp))) { 
     rg <- range(Mod(coher), Mod(signif$coher), qs, na.rm = TRUE) 
     plot(log(1/timescales), Mod(coher), 
-         type = "l", lty = "solid", xaxt = "n", col = "#31688EFF", ylim = rg, lwd = 1.5, 
+         type = "l", lty = "solid", xaxt = "n", col = "#31688EFF", ylim = rg,
+         lwd = 1.5, cex = 1.2,
          xlab = "", ylab = "")
     xlocs <- c(min(timescales), pretty(timescales, n = 12))
-    graphics::axis(side = 1, at = log(1/xlocs), labels = xlocs) 
-    lines(log(1/timescales), Mod(signif$coher), type = "l", lty = "dashed", col = "red", lwd = 1.5)
+    graphics::axis(side = 1, at = log(1/xlocs), labels = xlocs, cex = 1.2) 
+    lines(log(1/timescales), Mod(signif$coher), type = "l", lty = "dashed", col = "red", lwd = 1.5, cex = 1.2)
     
     for (counter in 1:dim(qs)[1]) {
-      lines(log(1/timescales), qs[counter, ], col = "black", lwd = 1.5)
+      lines(log(1/timescales), qs[counter, ], col = "black", lwd = 1.5, cex = 1.2)
     }
     
     if (!is.na(filename)) {
@@ -216,13 +218,14 @@ plotmag_coh_dr <- function(object, sigthresh = c(0.95, 0.99), bandprows = "all",
   rg[2] <- rg[2] + dim(bandp)[1]*prc*drg
   
   plot(log(1/timescales), Mod(coher), 
-       type = "l", lty = "solid", xaxt = "n", col = "#31688EFF", ylim = rg, lwd = 1.5, 
+       type = "l", lty = "solid", xaxt = "n", col = "#31688EFF", ylim = rg, 
+       lwd = 1.5, cex = 1.2,
        xlab = "", ylab = "")
   xlocs <- c(min(timescales), pretty(timescales, n = 12))
-  graphics::axis(side = 1, at = log(1/xlocs), labels = xlocs) 
-  lines(log(1/timescales), Mod(signif$coher), type = "l", lty = "dashed", col = "red", lwd = 1.5)
+  graphics::axis(side = 1, at = log(1/xlocs), labels = xlocs, cex = 1.2) 
+  lines(log(1/timescales), Mod(signif$coher), type = "l", lty = "dashed", col = "red", lwd = 1.5, cex = 1.2)
   for (counter in 1:dim(qs)[1]) {
-    lines(log(1/timescales), qs[counter, ], col = "black", lwd = 1.5)
+    lines(log(1/timescales), qs[counter, ], col = "black", lwd = 1.5, cex = 1.2)
   }
   if (bandprows != "all") {
     bandp <- bandp[bandprows, ]
@@ -239,7 +242,7 @@ plotmag_coh_dr <- function(object, sigthresh = c(0.95, 0.99), bandprows = "all",
     lines(log(1/c(b1, b1)), c(htl- wwd, htl + wwd))
     lines(log(1/c(b2, b2)), c(htl- wwd, htl + wwd))
     htt <- rg[2] - (counter - 1.2/2 - 0.1)*prc*drg
-    text(mean(log(1/c(b1, b2))), htt, paste0("p = ", round(p, 4)), cex = 0.66)
+    text(mean(log(1/c(b1, b2))), htt, paste0("p = ", round(p, 4)), cex = 1.2)
   }
   
   if (!is.na(filename)) {
@@ -289,7 +292,7 @@ plotrank_coh_dr <- function(object, sigthresh = 0.95, bandprows = "all", filenam
       lines(range(x), c(sigthresh[counter], sigthresh[counter]), lty = "dashed")
     }
     xlocs <- c(min(timescales), pretty(timescales, n = 8))
-    graphics::axis(side = 1, at = log(1/xlocs), labels = xlocs) 
+    graphics::axis(side = 1, at = log(1/xlocs), labels = xlocs, cex = 1) 
   } else {
     # if bandp is present plot p-values too
     # get the new vertical axis range to fit the p-vals
@@ -307,7 +310,7 @@ plotrank_coh_dr <- function(object, sigthresh = 0.95, bandprows = "all", filenam
       lines(range(x), c(sigthresh[counter], sigthresh[counter]), lty = "dashed")
     }
     xlocs <- c(min(timescales), pretty(timescales, n = 8))
-    graphics::axis(side = 1, at = log(1 / xlocs), labels = xlocs) 
+    graphics::axis(side = 1, at = log(1 / xlocs), labels = xlocs, cex = 1) 
     
     # add the p-vals
     if (!identical(bandprows, "all")) {

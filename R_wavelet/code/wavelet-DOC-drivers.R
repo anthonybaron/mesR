@@ -21,11 +21,13 @@ theme_set(theme_bw(base_size = 12)) #+ theme(panel.grid = element_blank()))
 # Source data -------------------------------------------------------------
 
 source("./R_wavelet/code/wavelet-functions.R")
-source("./R_data-cleaning/bpwtp/code/clean-wavelet.R")
+source("./R_data-cleaning/bpwtp/code/clean-wavelet.R") 
 
 bp_drivers <- wavelet_data()
 wtl <- wt_data()
-cohl <- coherence_data()
+# cohl <- coherence_data()
+# readr::write_rds(cohl, "./R_wavelet/data/coherence_data.rds")
+cohl <- readr::read_rds("./R_wavelet/data/coherence_data.rds")
 
 bp_drivers %>% 
   ggplot(aes(date_ymd, TP_ug.L)) + 
@@ -944,7 +946,8 @@ band6 <- c(18, Inf)
 cohp <- lapply(FUN = function(x){bandtest(object = x, band = band6)}, X = cohp)
 cohp <- lapply(FUN = function(x){bandtest(object = x, band = band5)}, X = cohp)
 
-# tiff("R_wavelet/outputs/figures/p_coh.tif", units = "in", res = 150, width = 9, height = 7)
+source("./R_wavelet/code/wavelet-functions.R")
+tiff("R_wavelet/outputs/figures/p_coh_20221101.tif", units = "in", res = 150, width = 9, height = 7)
 
 laymat <- matrix(1, nrow = 3, ncol = 3)
 laymat[1, ] <- 1:3
@@ -971,7 +974,7 @@ mtext("Coherence", 2, outer = T, line = 2, adj = 0.52)
 mtext("Coherence", 2, outer = T, line = 2, adj = 0.14)
 mtext("Coherence", 2, outer = T, line = 2, adj = 0.9)
 
-# dev.off()
+dev.off()
 
 # plotrank()
 # The vertical axis label Fract surr gt stands for the fraction of surrogate

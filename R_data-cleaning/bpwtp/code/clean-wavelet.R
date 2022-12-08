@@ -2,6 +2,7 @@ library(dplyr)
 library(readr)
 library(tidyr)
 library(wsyn)
+library(viridis)
 
 # Source scripts for data sets 
 source("./R_data-cleaning/bpwtp/code/clean-bpwtp-DOC.R")
@@ -12,6 +13,7 @@ source("./R_data-cleaning/bpwtp/code/clean-bpwtp-sulphate.R")
 source("./R_data-cleaning/bpwtp/code/clean-bpwtp-organic-N.R")
 source("./R_data-cleaning/bpwtp/code/clean-bpwtp-nitrate.R")
 source("./R_data-cleaning/bpwtp/code/clean-bpwtp-ammonia-N.R")
+source("./R_data-cleaning/bpwtp/code/clean-bpwtp-UV254.R")
 source("./R_data-cleaning/flow-reconstruction/code/clean-flows.R")
 #
 source("./R_wavelet/code/wavelet-functions.R")
@@ -26,13 +28,13 @@ wavelet_data <- function(ts_monthly = FALSE, wtdat = FALSE, cohdat = FALSE) {
   # Read in data sets 
   bp_doc_raw <- bp_DOC_monthly()
   bp_chla_raw <- bp_Chla_monthly()
-  bp_flow_raw <- station_flow_monthly()
   bp_tp_raw <- bp_TP_monthly()
   bp_srp_raw <- bp_SRP_monthly()
   bp_so4_raw <- bp_sulphate_monthly()
   bp_don_raw <- bp_organicN_monthly() %>% rename(DON_mg.L = orgN_mg.L)
   bp_no3_raw <- bp_nitrate_monthly()
-  bp_nh3_raw <- bp_ammonia_monthly()
+  bp_nh3_raw <- bp_ammonia_monthly() 
+  bp_uv254_raw <- bp_UV254_monthly()
   bp_flow_raw <- station_flow_monthly() %>%  
     mutate(nn = 0,
            mm = ifelse(Month < 10, paste0(nn, Month, sep = ""), Month),
@@ -51,6 +53,7 @@ wavelet_data <- function(ts_monthly = FALSE, wtdat = FALSE, cohdat = FALSE) {
     right_join(bp_don_raw) %>% 
     right_join(bp_no3_raw) %>% 
     right_join(bp_nh3_raw) %>% 
+    right_join(bp_uv254_raw) %>% 
     right_join(bp_flow_raw) 
 
   return(bp_drivers)
@@ -218,3 +221,39 @@ coherence_data <- function() {
 
 
 
+
+
+
+# 
+# bp_drivers <- bp_drivers %>% 
+#   mutate(CNratio = DOC_mg.L / DON_mg.L,
+#          CNratio = ifelse(CNratio > 100, NA, CNratio))
+# bp_drivers %>% 
+#   ggplot(aes(DON_mg.L, DOC_mg.L, col = year)) + 
+#   # facet_wrap(~ year, ncol = 10) +
+#   scale_color_viridis(option = 'plasma') +
+#   geom_point() + 
+#   labs(x = 'TON_mg.L')
+# bp_drivers %>% 
+#   ggplot(aes(yday(date_ymd), CNratio)) + 
+#   facet_wrap(~ year, ncol = 10) +
+#   geom_line()
+# bp_drivers %>% 
+#   ggplot(aes(yday(date_ymd), CNratio, group = year, col = year)) + 
+#   geom_line() +
+#   scale_color_viridis_c(option = 'plasma') + 
+#   labs(x = 'Day of year')
+# bp_drivers %>% 
+#   ggplot(aes(date_ymd, CNratio)) + 
+#   geom_line(size = 1, col = 'steelblue3') + 
+#   ylim(c(0, 30)) +
+#   labs(x = NULL)
+# 
+# 
+# p_cn <- bp_drivers %>% 
+#   ggplot(aes(yday(date_ymd), CNratio, group = year, col = year)) + 
+#   geom_line() +
+#   lims(y = c(0, 25)) +
+#   scale_color_viridis_c(option = 'plasma') + 
+#   labs(x = 'Day of year', y = "DOC:DON", col = "Year")
+# ggsave("./R_bpwtp/outputs/figures/p_CNratio.png", p_cn, width = 8, height = 4)

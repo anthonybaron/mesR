@@ -16,6 +16,24 @@ theme_set(theme_bw(base_size = 11))
 # conductivity, pH, sulphate, ammonia, nitrate, organic nitrogen, chlorophyll a,
 # TOC, DOC, A254, TP, SRP, blue-green algae, green algae, total blue-green + 
 # green algae
+# 
+# bpo <- subset(bp_longterm_raw, grepl("Oxygen", parameter) & station == "Raw" & year %in% c(1990:2019))
+# bpo <- subset(bpo, parameter == "Bench Diss. Oxygen")
+# bpo1 <- subset(bpo, result < 30)
+# bpo1 %>% filter(result <= 5) %>%   ggplot(aes(yday(datetime_ymd.hms), result)) + 
+#   facet_wrap(~ year, ncol = 10) + 
+#   geom_point() 
+# 
+# bpo1 %>% 
+#   ggplot(aes(yday(datetime_ymd.hms), result)) + 
+#   facet_wrap(~ year, ncol = 10) + 
+#   # geom_point(alpha = 1/5) + 
+#   geom_line(size = 0.85) + 
+#   geom_rug(sides = 'b') + 
+#   lims(y = c(0, 15)) +
+#   theme_bw(base_size = 14) +
+#   labs(x = 'Day of year', y = 'Dissolved oxygen (mg/L)')
+
 
 clean_bp_longterm <- function() {
   
@@ -324,3 +342,18 @@ bind_all_parms <- function() {
 }
 
 
+# tmp <- clean_bp_longterm()
+# 
+# tmpdoc <- subset(tmp, parameter == "DOC")
+# tmpdoc <- select(tmpdoc, date_ymd:week, DOC = result)
+# tmpa254 <- subset(tmp, parameter == "UV 254")
+# tmpa254 <- select(tmpa254, date_ymd:week, A254 = result)
+# tmpsuva <- left_join(tmpdoc, tmpa254)
+# tmpsuva$SUVA <- tmpsuva$A254 / tmpsuva$DOC
+# 
+# ggplot(tmpsuva, aes(date_ymd, DOC)) + 
+#   geom_point()
+# ggplot(tmpsuva, aes(date_ymd, A254)) + 
+#   geom_point()
+# ggplot(tmpsuva, aes(date_ymd, SUVA)) + 
+#   geom_point()

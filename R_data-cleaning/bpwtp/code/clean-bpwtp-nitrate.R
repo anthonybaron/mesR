@@ -70,7 +70,7 @@ bp_nitrate_month <- bp_longterm_nitrate_infill %>%
   summarise(NO3_mg.L = mean(result, na.rm = TRUE)) %>% 
   ungroup()
 
-bp_nitrate_month %>% filter(is.na(NO3_mg.L))
+bp_nitrate_month %>% filter(is.na(NO3_mg.L)) # 2 NAs
 
 bp_nitrate_monthly <- function(df = bp_nitrate_month) {
   

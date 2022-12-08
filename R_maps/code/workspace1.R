@@ -225,8 +225,15 @@ station_labs <- tibble::tribble(
   "Buffalo Pound L.\ninflow", 50.776,     -105.82
 )
 
+wtp_lab <- tibble::tribble(
+  ~"label",         ~"latitude", ~"longitude", 
+   "BPWTP\nintake",  50.585778,    -105.3834   
+)
+
 bpd$label <- ifelse(bpd$NAME == "Gordon McKenzie Arm", "L.\nDiefenbaker", NA)
 bpd$label <- ifelse(bpd$NAME == "Buffalo Pound Lake", "Buffalo\nPound\nL.", bpd$label)
+
+wtp <- data.frame(latitude = 50.585778, longitude = -105.3834)
 
 catchment_plot <- ggplot() + 
   geom_sf(data = g005, col = NA) +
@@ -237,6 +244,8 @@ catchment_plot <- ggplot() +
   geom_sf(data = g005, size = 0.75,  fill = NA, col = "grey40") +
   geom_sf(data = subset(rra, grepl("Iskwao", NAME)), col = colblue, size = 0.5) +
   coord_sf(xlim = c(-106.65, -105.36), ylim = c(50.532, 51.36)) + 
+  geom_point(data = wtp, aes(longitude, latitude),
+             shape = 21, col = "black", fill = "#FAFA33", size = 6) + 
   geom_point(data = stations, aes(longitude, latitude),
              shape = 23, col = "black", fill = "red", size = 3.5) + 
   geom_text(data = lake_labs, aes(longitude, latitude, label = label),
@@ -296,6 +305,12 @@ catchment_plot <- ggplot() +
                   nudge_y = 0.01,
                   size = 3,
                   point.padding = 0.5) +
+  geom_text_repel(data = wtp_lab, aes(longitude, latitude, label = label),
+                  nudge_x = -0.25,
+                  nudge_y = -0.043,
+                  fontface = 'bold',
+                  size = 3,
+                  point.padding = 0.8) +
   annotation_north_arrow(pad_x = unit(0.4, "cm"), pad_y = unit(0.8, "cm"), 
                          width = unit(1.25, "cm"), height = unit(1.4, "cm"),
                          style = north_arrow_orienteering(fill = c("white", "black"), text_size = 7)) + 
@@ -304,6 +319,7 @@ catchment_plot <- ggplot() +
         panel.background = element_rect(fill = "transparent"),
         plot.background = element_rect(fill = "transparent")) + 
   labs(x = NULL, y = NULL)
+catchment_plot
 
 # add map of Canada inset
 cda <- select(cda, PRUID, PRENAME, geometry)
@@ -405,7 +421,7 @@ bplake_plot <- ggplot() +
                          style = north_arrow_orienteering(fill = c("white", "black"), text_size = 7)) 
 
 p_outname <- "./R_maps/outputs/figures/"
-dd <- "20220926_"
+dd <- "20221031_"
 ggsave(paste0(p_outname, dd, "m_catchment.png"), catchment_plot, w = 7, h = 7.5)
 ggsave(paste0(p_outname, dd, "m_bplake.png"), bplake_plot, w = 7, h = 7)
 
