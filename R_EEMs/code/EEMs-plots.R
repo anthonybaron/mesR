@@ -93,6 +93,39 @@ eems$site_abbr1 <- factor(eems$site_abbr1,
                           levels = c("B1.7", "B3.8", "B5.2", "B9.0", 
                                      "B13.0", "B19.8", "B25.2", "B29.1"))
 
+wq2018_long <- read_csv("./R_data-cleaning/EEMs/data/clean/BP_WQ_2018.csv") %>% 
+  select(-c(1,2))
+
+wq2018_wide <- wq2018_long %>% 
+  pivot_wider(names_from = parameter,
+              values_from = result) %>% 
+  mutate(Year = "2018")
+
+wq <- eems %>% select(site_code_long, date_ymd, Year, dist_km,
+                      chla_ug.L, turb_field_NTU, secchi_depth_m, ext_coeff_m) %>% 
+  mutate(site_code_long = as.character(site_code_long),
+         Year = as.character(Year)) %>% 
+  bind_rows(wq2018_wide) %>% 
+  select(-sitet_abbr1) %>% 
+  mutate(site_abbr1 = case_when(
+    site_code_long == "Lake Inflow" ~ "B1.7",
+    site_code_long == "Upstream Causeway" ~ "B3.8",
+    site_code_long == "Below Causeway" ~ "B5.2",
+    site_code_long == "Opposite South Lake" ~ "B9.0",
+    site_code_long == "Opposite Sun Valley" ~ "B13.0",
+    site_code_long == "Opposite Parkview" ~ "B19.8",
+    site_code_long == "WTP Intake" ~ "B25.2",
+    site_code_long == "Above Outlet" ~ "B29.1",
+  )) %>% 
+  mutate(Year = as.numeric(Year))
+wq$site_abbr1 <- factor(wq$site_abbr1, 
+                          levels = c("B1.7", "B3.8", "B5.2", "B9.0", 
+                                     "B13.0", "B19.8", "B25.2", "B29.1"))
+
+# write_csv(wq, "./R_data-cleaning/EEMs/data/clean/wq_all.csv")
+
+
+
 # Parameter labels --------------------------------------------------------
 
 A254_lab <- expression(paste(italic("A"), ""[254]*""))
@@ -254,6 +287,40 @@ bp_select_sites %>%
 
 # Parameter plots ---------------------------------------------------------
 
+plot_mean_sd_wq <- function(parm = "", parm_lab = "") { 
+  
+  df <- wq %>% 
+    select(site_code_long:dist_km, site_abbr1, chla_ug.L:ext_coeff_m) %>% 
+    pivot_longer(cols = c(chla_ug.L:ext_coeff_m), 
+                 names_to = "parameter", 
+                 values_to = "result") %>% 
+    mutate(parameter = factor(parameter),
+           Site = site_code_long) %>% 
+    group_by(Site, site_abbr1, Year, dist_km, parameter) %>% 
+    summarise(mean_parameter = mean(result, na.rm = TRUE),
+              sd_parameter = sd(result, na.rm = TRUE)) %>% 
+    mutate(lower = mean_parameter - sd_parameter,
+           upper = mean_parameter + sd_parameter) %>% 
+    ungroup() 
+  
+  p_mean_sd <- df %>% 
+    filter(parameter == parm & !is.na(mean_parameter)) %>%
+    # filter(parameter == parm) %>%
+    ggplot(aes(dist_km, mean_parameter)) + 
+    facet_wrap(~ Year, nrow = 1) +
+    xlim(c(0, 30)) +
+    geom_line() +
+    geom_errorbar(aes(ymin = lower, ymax = upper, col = site_abbr1), width = 0.33) +
+    geom_point(aes(col = site_abbr1), size = 3) + 
+    scale_color_viridis_d(begin = 0, end = 0.8) +
+    theme(legend.position = "bottom", plot.tag = element_text(face = "bold")) +
+    guides(col = guide_legend(nrow = 1)) + 
+    labs(x = dist_lab, y = parm_lab, col = "Site")
+  
+  return(p_mean_sd)
+  
+}
+
 plot_mean_sd <- function(parm = "", parm_lab = "") { 
   
   df <- eems %>% 
@@ -292,18 +359,18 @@ plot_mean_sd <- function(parm = "", parm_lab = "") {
 
 
 p_outname <- "./R_EEMs/outputs/figures/"
-dd <- "20220926_"
+dd <- "20230125_"
 
 # Water quality plots
 
 # // Water quality --------------------------------------------------------
 
 ### Turbditiy, Chl a, extinction coefficient, Secchi depth (main text)
-p_m_sd_fieldturb <- plot_mean_sd(parm = "turb_field_NTU", parm_lab = "Turbidity (NTU)") + ylim(c(NA, 100)) + labs(x = NULL, tag = 'a')
+p_m_sd_fieldturb <- plot_mean_sd_wq(parm = "turb_field_NTU", parm_lab = "Turbidity (NTU)") + ylim(c(NA, 100)) + labs(x = NULL, tag = 'a')
 # p_m_sd_labturb <- plot_mean_sd(parm = "turb_lab_NTU", parm_lab = turb_lab_lab) + labs(x = NULL, tag = 'b') # not needed
-p_m_sd_extcoeff <- plot_mean_sd(parm = "ext_coeff_m", parm_lab = extinction_coefficient_lab) + ylim(c(0, NA)) + labs(x = NULL, tag = 'b')
-p_m_sd_secchi <- plot_mean_sd(parm = "secchi_depth_m", parm_lab = secchi_lab) + scale_y_reverse() + labs(x = NULL, tag = 'c')
-p_m_sd_Chla <- plot_mean_sd(parm = "chla_ug.L", parm_lab = Chla_lab) + labs(tag = 'd')
+p_m_sd_extcoeff <- plot_mean_sd_wq(parm = "ext_coeff_m", parm_lab = extinction_coefficient_lab) + ylim(c(0, NA)) + labs(x = NULL, tag = 'b')
+p_m_sd_secchi <- plot_mean_sd_wq(parm = "secchi_depth_m", parm_lab = secchi_lab) + scale_y_reverse() + labs(x = NULL, tag = 'c')
+p_m_sd_Chla <- plot_mean_sd_wq(parm = "chla_ug.L", parm_lab = Chla_lab) + labs(tag = 'd')
 
 p_wq <- (p_m_sd_fieldturb / p_m_sd_extcoeff / p_m_sd_secchi / p_m_sd_Chla) + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 ggsave(paste0(p_outname, dd, "p_wq.png"), p_wq, w = 8, h = 9)

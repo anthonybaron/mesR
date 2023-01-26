@@ -1,0 +1,173 @@
+"","station_num","date_ymd","parameter","result","site_code_long","sitet_abbr1","dist_km"
+"1","SK05JG0094",2018-03-20,"chla_ug.L",6.79,"Below Causeway","B5.2",5.2
+"2","SK05JG0094",2018-03-20,"turb_field_NTU",33,"Below Causeway","B5.2",5.2
+"3","SK05JG0095",2018-03-20,"chla_ug.L",13.73,"Opposite South Lake","B9.0",9
+"4","SK05JG0095",2018-03-20,"turb_field_NTU",2.1,"Opposite South Lake","B9.0",9
+"5","SK05JG0096",2018-03-20,"chla_ug.L",20.44,"Opposite Sun Valley","B13.0",13
+"6","SK05JG0096",2018-03-20,"turb_field_NTU",0.9,"Opposite Sun Valley","B13.0",13
+"7","SK05JG0098",2018-03-20,"chla_ug.L",74.41,"Opposite Parkview","B19.8",19.8
+"8","SK05JG0098",2018-03-20,"turb_field_NTU",1.1,"Opposite Parkview","B19.8",19.8
+"9","SK05JG0102",2018-03-20,"chla_ug.L",56.26,"WTP Intake","B25.2",25.2
+"10","SK05JG0102",2018-03-20,"turb_field_NTU",3.1,"WTP Intake","B25.2",25.2
+"11","SK05JG0104",2018-03-20,"chla_ug.L",12.4,"Above Outlet","B29.1",29.1
+"12","SK05JG0104",2018-03-20,"turb_field_NTU",2.5,"Above Outlet","B29.1",29.1
+"13","SK05JG0104",2018-05-23,"chla_ug.L",6,"Above Outlet","B29.1",29.1
+"14","SK05JG0104",2018-05-23,"ext_coeff_m",0.776,"Above Outlet","B29.1",29.1
+"15","SK05JG0104",2018-05-23,"turb_field_NTU",1.4,"Above Outlet","B29.1",29.1
+"16","SK05JG0104",2018-05-23,"secchi_depth_m",1.95,"Above Outlet","B29.1",29.1
+"17","SK05JG0102",2018-05-23,"chla_ug.L",5.31,"WTP Intake","B25.2",25.2
+"18","SK05JG0102",2018-05-23,"ext_coeff_m",0.668,"WTP Intake","B25.2",25.2
+"19","SK05JG0102",2018-05-23,"turb_field_NTU",0.6,"WTP Intake","B25.2",25.2
+"20","SK05JG0102",2018-05-23,"secchi_depth_m",2.05,"WTP Intake","B25.2",25.2
+"21","SK05JG0098",2018-05-23,"chla_ug.L",9.05,"Opposite Parkview","B19.8",19.8
+"22","SK05JG0098",2018-05-23,"ext_coeff_m",0.742,"Opposite Parkview","B19.8",19.8
+"23","SK05JG0098",2018-05-23,"turb_field_NTU",0.7,"Opposite Parkview","B19.8",19.8
+"24","SK05JG0098",2018-05-23,"secchi_depth_m",2.1,"Opposite Parkview","B19.8",19.8
+"25","SK05JG0096",2018-05-23,"chla_ug.L",4.63,"Opposite Sun Valley","B13.0",13
+"26","SK05JG0096",2018-05-23,"ext_coeff_m",0.77,"Opposite Sun Valley","B13.0",13
+"27","SK05JG0096",2018-05-23,"turb_field_NTU",0.6,"Opposite Sun Valley","B13.0",13
+"28","SK05JG0096",2018-05-23,"secchi_depth_m",2.1,"Opposite Sun Valley","B13.0",13
+"29","SK05JG0095",2018-05-23,"chla_ug.L",5.31,"Opposite South Lake","B9.0",9
+"30","SK05JG0095",2018-05-23,"ext_coeff_m",0.686,"Opposite South Lake","B9.0",9
+"31","SK05JG0095",2018-05-23,"turb_field_NTU",0.6,"Opposite South Lake","B9.0",9
+"32","SK05JG0095",2018-05-23,"secchi_depth_m",1.85,"Opposite South Lake","B9.0",9
+"33","SK05JG0094",2018-05-23,"chla_ug.L",6,"Below Causeway","B5.2",5.2
+"34","SK05JG0094",2018-05-23,"ext_coeff_m",1.172,"Below Causeway","B5.2",5.2
+"35","SK05JG0094",2018-05-23,"turb_field_NTU",2.1,"Below Causeway","B5.2",5.2
+"36","SK05JG0094",2018-05-23,"secchi_depth_m",1.65,"Below Causeway","B5.2",5.2
+"37","SK05JG0094",2018-06-19,"chla_ug.L",25.04,"Below Causeway","B5.2",5.2
+"38","SK05JG0094",2018-06-19,"ext_coeff_m",1.27,"Below Causeway","B5.2",5.2
+"39","SK05JG0094",2018-06-19,"turb_field_NTU",6.91,"Below Causeway","B5.2",5.2
+"40","SK05JG0094",2018-06-19,"secchi_depth_m",0.9,"Below Causeway","B5.2",5.2
+"41","SK05JG0095",2018-06-19,"chla_ug.L",25.11,"Opposite South Lake","B9.0",9
+"42","SK05JG0095",2018-06-19,"ext_coeff_m",0.887,"Opposite South Lake","B9.0",9
+"43","SK05JG0095",2018-06-19,"turb_field_NTU",10.86,"Opposite South Lake","B9.0",9
+"44","SK05JG0095",2018-06-19,"secchi_depth_m",0.7,"Opposite South Lake","B9.0",9
+"45","SK05JG0096",2018-06-19,"chla_ug.L",73.33,"Opposite Sun Valley","B13.0",13
+"46","SK05JG0096",2018-06-19,"ext_coeff_m",1.116,"Opposite Sun Valley","B13.0",13
+"47","SK05JG0096",2018-06-19,"turb_field_NTU",22.1,"Opposite Sun Valley","B13.0",13
+"48","SK05JG0096",2018-06-19,"secchi_depth_m",0.3,"Opposite Sun Valley","B13.0",13
+"49","SK05JG0098",2018-06-19,"chla_ug.L",70.6,"Opposite Parkview","B19.8",19.8
+"50","SK05JG0098",2018-06-19,"ext_coeff_m",1.157,"Opposite Parkview","B19.8",19.8
+"51","SK05JG0098",2018-06-19,"turb_field_NTU",17,"Opposite Parkview","B19.8",19.8
+"52","SK05JG0098",2018-06-19,"secchi_depth_m",0.5,"Opposite Parkview","B19.8",19.8
+"53","SK05JG0102",2018-06-19,"chla_ug.L",20.97,"WTP Intake","B25.2",25.2
+"54","SK05JG0102",2018-06-19,"ext_coeff_m",1.11,"WTP Intake","B25.2",25.2
+"55","SK05JG0102",2018-06-19,"turb_field_NTU",14.61,"WTP Intake","B25.2",25.2
+"56","SK05JG0102",2018-06-19,"secchi_depth_m",1.05,"WTP Intake","B25.2",25.2
+"57","SK05JG0104",2018-06-19,"chla_ug.L",5.91,"Above Outlet","B29.1",29.1
+"58","SK05JG0104",2018-06-19,"ext_coeff_m",0.929,"Above Outlet","B29.1",29.1
+"59","SK05JG0104",2018-06-19,"turb_field_NTU",2.67,"Above Outlet","B29.1",29.1
+"60","SK05JG0104",2018-06-19,"secchi_depth_m",1.45,"Above Outlet","B29.1",29.1
+"61","SK05JG0102",2018-07-17,"chla_ug.L",39.7,"WTP Intake","B25.2",25.2
+"62","SK05JG0102",2018-07-17,"ext_coeff_m",1.819,"WTP Intake","B25.2",25.2
+"63","SK05JG0102",2018-07-17,"turb_field_NTU",5.6,"WTP Intake","B25.2",25.2
+"64","SK05JG0102",2018-07-17,"secchi_depth_m",0.75,"WTP Intake","B25.2",25.2
+"65","SK05JG0104",2018-07-17,"chla_ug.L",8.81,"Above Outlet","B29.1",29.1
+"66","SK05JG0104",2018-07-17,"ext_coeff_m",1.211,"Above Outlet","B29.1",29.1
+"67","SK05JG0104",2018-07-17,"turb_field_NTU",2.9,"Above Outlet","B29.1",29.1
+"68","SK05JG0104",2018-07-17,"secchi_depth_m",1.05,"Above Outlet","B29.1",29.1
+"69","SK05JG0098",2018-07-17,"chla_ug.L",51.13,"Opposite Parkview","B19.8",19.8
+"70","SK05JG0098",2018-07-17,"ext_coeff_m",2.058,"Opposite Parkview","B19.8",19.8
+"71","SK05JG0098",2018-07-17,"turb_field_NTU",10.1,"Opposite Parkview","B19.8",19.8
+"72","SK05JG0098",2018-07-17,"secchi_depth_m",0.6,"Opposite Parkview","B19.8",19.8
+"73","SK05JG0096",2018-07-17,"chla_ug.L",26.12,"Opposite Sun Valley","B13.0",13
+"74","SK05JG0096",2018-07-17,"ext_coeff_m",1.448,"Opposite Sun Valley","B13.0",13
+"75","SK05JG0096",2018-07-17,"turb_field_NTU",5.7,"Opposite Sun Valley","B13.0",13
+"76","SK05JG0096",2018-07-17,"secchi_depth_m",0.6,"Opposite Sun Valley","B13.0",13
+"77","SK05JG0095",2018-07-17,"chla_ug.L",17.07,"Opposite South Lake","B9.0",9
+"78","SK05JG0095",2018-07-17,"ext_coeff_m",1.214,"Opposite South Lake","B9.0",9
+"79","SK05JG0095",2018-07-17,"turb_field_NTU",4.2,"Opposite South Lake","B9.0",9
+"80","SK05JG0095",2018-07-17,"secchi_depth_m",0.8,"Opposite South Lake","B9.0",9
+"81","SK05JG0094",2018-07-17,"chla_ug.L",12.64,"Below Causeway","B5.2",5.2
+"82","SK05JG0094",2018-07-17,"ext_coeff_m",1.339,"Below Causeway","B5.2",5.2
+"83","SK05JG0094",2018-07-17,"turb_field_NTU",3.9,"Below Causeway","B5.2",5.2
+"84","SK05JG0094",2018-07-17,"secchi_depth_m",0.75,"Below Causeway","B5.2",5.2
+"85","SK05JG0102",2018-08-21,"chla_ug.L",11.4,"WTP Intake","B25.2",25.2
+"86","SK05JG0102",2018-08-21,"ext_coeff_m",1.307,"WTP Intake","B25.2",25.2
+"87","SK05JG0102",2018-08-21,"turb_field_NTU",3.5,"WTP Intake","B25.2",25.2
+"88","SK05JG0102",2018-08-21,"secchi_depth_m",0.9,"WTP Intake","B25.2",25.2
+"89","SK05JG0104",2018-08-21,"chla_ug.L",67.12,"Above Outlet","B29.1",29.1
+"90","SK05JG0104",2018-08-21,"ext_coeff_m",1.652,"Above Outlet","B29.1",29.1
+"91","SK05JG0104",2018-08-21,"turb_field_NTU",4,"Above Outlet","B29.1",29.1
+"92","SK05JG0104",2018-08-21,"secchi_depth_m",0.75,"Above Outlet","B29.1",29.1
+"93","SK05JG0098",2018-08-21,"chla_ug.L",31.84,"Opposite Parkview","B19.8",19.8
+"94","SK05JG0098",2018-08-21,"ext_coeff_m",1.543,"Opposite Parkview","B19.8",19.8
+"95","SK05JG0098",2018-08-21,"turb_field_NTU",5.9,"Opposite Parkview","B19.8",19.8
+"96","SK05JG0098",2018-08-21,"secchi_depth_m",0.85,"Opposite Parkview","B19.8",19.8
+"97","SK05JG0096",2018-08-21,"chla_ug.L",24.51,"Opposite Sun Valley","B13.0",13
+"98","SK05JG0096",2018-08-21,"ext_coeff_m",1.374,"Opposite Sun Valley","B13.0",13
+"99","SK05JG0096",2018-08-21,"turb_field_NTU",5.6,"Opposite Sun Valley","B13.0",13
+"100","SK05JG0096",2018-08-21,"secchi_depth_m",0.9,"Opposite Sun Valley","B13.0",13
+"101","SK05JG0095",2018-08-21,"chla_ug.L",19.49,"Opposite South Lake","B9.0",9
+"102","SK05JG0095",2018-08-21,"ext_coeff_m",1.328,"Opposite South Lake","B9.0",9
+"103","SK05JG0095",2018-08-21,"turb_field_NTU",3.9,"Opposite South Lake","B9.0",9
+"104","SK05JG0095",2018-08-21,"secchi_depth_m",1,"Opposite South Lake","B9.0",9
+"105","SK05JG0094",2018-08-21,"chla_ug.L",15.95,"Below Causeway","B5.2",5.2
+"106","SK05JG0094",2018-08-21,"ext_coeff_m",1.362,"Below Causeway","B5.2",5.2
+"107","SK05JG0094",2018-08-21,"turb_field_NTU",3.9,"Below Causeway","B5.2",5.2
+"108","SK05JG0094",2018-08-21,"secchi_depth_m",0.9,"Below Causeway","B5.2",5.2
+"109","SK05JG0094",2018-09-27,"chla_ug.L",9.23,"Below Causeway","B5.2",5.2
+"110","SK05JG0094",2018-09-27,"ext_coeff_m",1.008,"Below Causeway","B5.2",5.2
+"111","SK05JG0094",2018-09-27,"turb_field_NTU",3.3,"Below Causeway","B5.2",5.2
+"112","SK05JG0094",2018-09-27,"secchi_depth_m",1.4,"Below Causeway","B5.2",5.2
+"113","SK05JG0095",2018-09-27,"chla_ug.L",9.95,"Opposite South Lake","B9.0",9
+"114","SK05JG0095",2018-09-27,"ext_coeff_m",0.955,"Opposite South Lake","B9.0",9
+"115","SK05JG0095",2018-09-27,"turb_field_NTU",2.4,"Opposite South Lake","B9.0",9
+"116","SK05JG0095",2018-09-27,"secchi_depth_m",1.5,"Opposite South Lake","B9.0",9
+"117","SK05JG0096",2018-09-27,"chla_ug.L",8.48,"Opposite Sun Valley","B13.0",13
+"118","SK05JG0096",2018-09-27,"ext_coeff_m",1.007,"Opposite Sun Valley","B13.0",13
+"119","SK05JG0096",2018-09-27,"turb_field_NTU",2.4,"Opposite Sun Valley","B13.0",13
+"120","SK05JG0096",2018-09-27,"secchi_depth_m",1.6,"Opposite Sun Valley","B13.0",13
+"121","SK05JG0098",2018-09-27,"chla_ug.L",10.53,"Opposite Parkview","B19.8",19.8
+"122","SK05JG0098",2018-09-27,"ext_coeff_m",1.103,"Opposite Parkview","B19.8",19.8
+"123","SK05JG0098",2018-09-27,"turb_field_NTU",2.9,"Opposite Parkview","B19.8",19.8
+"124","SK05JG0098",2018-09-27,"secchi_depth_m",1.3,"Opposite Parkview","B19.8",19.8
+"125","SK05JG0102",2018-09-27,"chla_ug.L",12.11,"WTP Intake","B25.2",25.2
+"126","SK05JG0102",2018-09-27,"ext_coeff_m",1.062,"WTP Intake","B25.2",25.2
+"127","SK05JG0102",2018-09-27,"turb_field_NTU",2.8,"WTP Intake","B25.2",25.2
+"128","SK05JG0102",2018-09-27,"secchi_depth_m",1.4,"WTP Intake","B25.2",25.2
+"129","SK05JG0104",2018-09-27,"chla_ug.L",14.37,"Above Outlet","B29.1",29.1
+"130","SK05JG0104",2018-09-27,"ext_coeff_m",1.33,"Above Outlet","B29.1",29.1
+"131","SK05JG0104",2018-09-27,"turb_field_NTU",2.5,"Above Outlet","B29.1",29.1
+"132","SK05JG0104",2018-09-27,"secchi_depth_m",0.9,"Above Outlet","B29.1",29.1
+"133",NA,2018-05-23,"chla_ug.L",13.58,"Upstream Causeway","B3.8",3.8
+"134",NA,2018-06-19,"chla_ug.L",37.825,"Upstream Causeway","B3.8",3.8
+"135",NA,2018-07-17,"chla_ug.L",33.725,"Upstream Causeway","B3.8",3.8
+"136",NA,2018-08-21,"chla_ug.L",11.335,"Upstream Causeway","B3.8",3.8
+"137",NA,2018-09-27,"chla_ug.L",8.025,"Upstream Causeway","B3.8",3.8
+"138",NA,2018-05-23,"ext_coeff_m",1.181,"Upstream Causeway","B3.8",3.8
+"139",NA,2018-06-19,"ext_coeff_m",2.37,"Upstream Causeway","B3.8",3.8
+"140",NA,2018-07-17,"ext_coeff_m",2.2125,"Upstream Causeway","B3.8",3.8
+"141",NA,2018-08-21,"ext_coeff_m",1.1085,"Upstream Causeway","B3.8",3.8
+"142",NA,2018-09-27,"ext_coeff_m",2.2235,"Upstream Causeway","B3.8",3.8
+"143",NA,2018-05-23,"secchi_depth_m",1.14,"Upstream Causeway","B3.8",3.8
+"144",NA,2018-06-19,"secchi_depth_m",0.925,"Upstream Causeway","B3.8",3.8
+"145",NA,2018-07-17,"secchi_depth_m",0.5,"Upstream Causeway","B3.8",3.8
+"146",NA,2018-08-21,"secchi_depth_m",1.35,"Upstream Causeway","B3.8",3.8
+"147",NA,2018-09-27,"secchi_depth_m",0.8,"Upstream Causeway","B3.8",3.8
+"148",NA,2018-05-23,"turb_field_NTU",2.7,"Upstream Causeway","B3.8",3.8
+"149",NA,2018-06-19,"turb_field_NTU",6.595,"Upstream Causeway","B3.8",3.8
+"150",NA,2018-07-17,"turb_field_NTU",9.7,"Upstream Causeway","B3.8",3.8
+"151",NA,2018-08-21,"turb_field_NTU",1.85,"Upstream Causeway","B3.8",3.8
+"152",NA,2018-09-27,"turb_field_NTU",10.75,"Upstream Causeway","B3.8",3.8
+"153",NA,2018-05-23,"chla_ug.L",4.63,"Lake Inflow","B1.7",1.7
+"154",NA,2018-06-19,"chla_ug.L",66.31,"Lake Inflow","B1.7",1.7
+"155",NA,2018-07-17,"chla_ug.L",29.245,"Lake Inflow","B1.7",1.7
+"156",NA,2018-08-21,"chla_ug.L",5.6,"Lake Inflow","B1.7",1.7
+"157",NA,2018-09-27,"chla_ug.L",20.54,"Lake Inflow","B1.7",1.7
+"158",NA,2018-05-23,"ext_coeff_m",2.688,"Lake Inflow","B1.7",1.7
+"159",NA,2018-06-19,"ext_coeff_m",2.608,"Lake Inflow","B1.7",1.7
+"160",NA,2018-07-17,"ext_coeff_m",3.018,"Lake Inflow","B1.7",1.7
+"161",NA,2018-08-21,"ext_coeff_m",1.482,"Lake Inflow","B1.7",1.7
+"162",NA,2018-09-27,"ext_coeff_m",2.303,"Lake Inflow","B1.7",1.7
+"163",NA,2018-05-23,"secchi_depth_m",0.5,"Lake Inflow","B1.7",1.7
+"164",NA,2018-06-19,"secchi_depth_m",0.6,"Lake Inflow","B1.7",1.7
+"165",NA,2018-07-17,"secchi_depth_m",0.375,"Lake Inflow","B1.7",1.7
+"166",NA,2018-08-21,"secchi_depth_m",0.95,"Lake Inflow","B1.7",1.7
+"167",NA,2018-09-27,"secchi_depth_m",0.45,"Lake Inflow","B1.7",1.7
+"168",NA,2018-05-23,"turb_field_NTU",12.4,"Lake Inflow","B1.7",1.7
+"169",NA,2018-06-19,"turb_field_NTU",16.285,"Lake Inflow","B1.7",1.7
+"170",NA,2018-07-17,"turb_field_NTU",13.85,"Lake Inflow","B1.7",1.7
+"171",NA,2018-08-21,"turb_field_NTU",4,"Lake Inflow","B1.7",1.7
+"172",NA,2018-09-27,"turb_field_NTU",13.65,"Lake Inflow","B1.7",1.7

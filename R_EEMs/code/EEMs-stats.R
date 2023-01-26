@@ -1,4 +1,5 @@
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(patchwork)
 library(purrr)
@@ -10,7 +11,7 @@ library(purrr)
 
 theme_set(theme_bw(base_size = 12) + theme(panel.grid = element_blank()))
 p_outname <- "./R_EEMs/outputs/figures/"
-dd <- "20220818_"
+dd <- "20230126_"
 
 source("./R_data-cleaning/EEMs/code/clean-EEMs.R")
 eems_all <- bp_doc_eems() %>% 
@@ -20,7 +21,11 @@ eems_all <- bp_doc_eems() %>%
   select(site_name:longitude, dist_km, everything()) %>% 
   select(-distHaversine_km)
 
-
+wq_all <- read_csv("./R_data-cleaning/EEMs/data/clean/wq_all.csv")
+wq_long <- wq_all %>% 
+  pivot_longer(cols = -c(site_code_long:dist_km, site_abbr1),
+               names_to = "parameter",
+               values_to = "result")
 
 # Parameter labels --------------------------------------------------------
 
@@ -29,8 +34,7 @@ A280_lab <- expression(paste("A"[280]*""))
 A350_lab <- expression(paste("A"[350]*""))
 A440_lab <- expression(paste("A"[440]*""))
 AT_ratio_lab <- "Peak A:Peak T"
-BA_lab <- "Freshness index<br>(<i>&beta;<i/>:<i>&alpha;<i/>)"
-BA_lab1 <- "Freshness index (<i>&beta;<i/>:<i>&alpha;<i/>)"
+BA_lab1 <- expression(paste("Freshness index (β:α)"))
 Chla_lab <- expression(paste("Chl ", italic(a), " (µg L"^-1*")")) 
 CA_ratio_lab <- "Peak C:Peak A"
 CM_ratio_lab <- "Peak C:Peak M"
@@ -58,7 +62,7 @@ S_lab1 <- "<i>S</i><sub>275–295</sub> (nm<sup>–1</sup>)"
 S_lab2 <- "<i>S</i><sub>350–400</sub> (nm<sup>–1</sup>)"
 secchi_lab <- "Secchi depth (m)"
 SUVA_lab <- "SUVA<sub>254</sub><br>(L mg-C<sup>–1</sup> m<sup>–1</sup>)"
-SUVA_lab1 <- "SUVA<sub>254</sub> (L mg-C<sup>–1</sup> m<sup>–1</sup>)"
+SUVA_lab1 <- expression(paste("SUVA"[254]*" (L mg-C"^-1*" m"^-1*")"))
 TDN_lab <- "TDN concentration<br>(mg L<sup>–1</sup>)"
 TDN_lab1 <- "TDN concentration (mg L<sup>–1</sup>)"
 # TDN_lab <- expression(paste("TDN concentration (mg L"^-1*")")) 
@@ -73,7 +77,7 @@ turb_lab_lab <- expression(paste("Turbidity"[lab]*" (NTU)"))
 # // Inflow sites ---------------------------------------------------------
 
 # Inflow sites (East, Centre, West)
-inflow <- eems %>% 
+inflow <- eems_all %>% 
   filter(grepl("Inflow", site_code_long)) %>% 
   select(site_code_long, Year, date_ymd, DOC_mg.L, SUVA, BA, HIX_Ohno)
 # Inflow East   = 1.50 km from lake inflow
@@ -122,8 +126,7 @@ p_inflow_hix <- inflow %>%
   labs(x = NULL, y = "Humification index (HIX)", tag = 'd')
 
 p_anova <- ((p_inflow_doc + p_inflow_suva) / (p_inflow_ba + p_inflow_hix)) + plot_layout(guides = 'collect') & theme(legend.position = "bottom")
-
-# ggsave("./R_EEMs/outputs/figures/20220801_p_anova.png", p_anova, w = 9, h = 8.1)
+ggsave("./R_EEMs/outputs/figures/20230126_p_anova.png", p_anova, w = 9, h = 8.1)
 
 p_inflow_year <- inflow %>% 
   mutate(`Day of year` = DOY) %>% 
@@ -205,11 +208,11 @@ hix_aov <- inflow %>% anova_test(HIX_Ohno ~ site_code_long)
 # // Upstream Causeway sites ----------------------------------------------
 
 # Upstream Causeway sites (Upstream Causeway Centre, Upstream Causeway East)
-causeway <- eems %>% 
+causeway <- eems_all %>% 
   filter(grepl("Upstream Causeway", site_code_long)) %>% 
   select(site_code_long, Year, date_ymd, DOC_mg.L, SUVA, BA, HIX_Ohno)
-ccc <- us_causeway %>% filter(site_code_long == "Upstream Causeway Centre") %>% select(DOC_mg.L)
-cce <- us_causeway %>% filter(site_code_long == "Upstream Causeway East") %>% select(DOC_mg.L)
+ccc <- causeway %>% filter(site_code_long == "Upstream Causeway Centre") %>% select(DOC_mg.L)
+cce <- causeway %>% filter(site_code_long == "Upstream Causeway East") %>% select(DOC_mg.L)
 # Upstream Causeway Centre = 3.68 km from lake inflow
 # Upstream Causeway East   = 3.83 km from lake inflow
 
@@ -264,8 +267,7 @@ p_causeway_hix <- causeway %>%
   labs(x = NULL, y = "Humification index (HIX)", tag = 'd')
 
 p_t_test <- ((p_causeway_doc + p_causeway_suva) / (p_causeway_ba + p_causeway_hix)) + plot_layout(guides = 'collect') & theme(legend.position = "bottom")
-
-# ggsave("./R_EEMs/outputs/figures/20220801_p_t_test.png", p_t_test, w = 8, h = 6.5)
+ggsave("./R_EEMs/outputs/figures/20230126_p_t_test.png", p_t_test, w = 8, h = 6.5)
 
 causeway %>% 
   pivot_longer(cols = -c(site_code_long, Year, date_ymd),
@@ -545,6 +547,12 @@ eems_summary_stats <- eems_long %>%
 
 # write_csv(eems_summary_stats, "./R_EEMs/outputs/data/20220718_eems-summary-stats.csv")
 
+wq_summary_stats <- wq_long %>%
+  select(-c(date_ymd:site_abbr1)) %>% 
+  filter(!is.na(result)) %>% 
+  group_by(parameter) %>% 
+  get_summary_stats(type = 'full') # %>% 
+  # select(parameter, n, min, median, q1, q3, max)
 
 # by site
 eems_long_site <- eems %>% 
@@ -578,8 +586,14 @@ eems_long_year <- eems %>%
 
 ee_spring <- eems %>% filter(Month %in% c("Mar", "Apr", "May", "Jun")) # n = 87
 ee_summer <- eems %>% filter(Month %in% c("Jul", "Aug", "Sep")) # n = 78
+wq_mon <- wq_all %>% mutate(Month = month(date_ymd, label = TRUE, abbr = TRUE))
+wq_spring <- wq_mon %>% filter(Month %in% c("Mar", "Apr", "May", "Jun")) # n = 109
+wq_summer <- wq_mon %>% filter(Month %in% c("Jul", "Aug", "Sep")) # n = 102
 
 ee_seasons <- eems %>% 
+  mutate(Season = ifelse(Month %in% c("Mar", "Apr", "May", "June"), "Spring", "Summer"),
+         Season = factor(Season))
+wq_seasons <- wq_mon %>% 
   mutate(Season = ifelse(Month %in% c("Mar", "Apr", "May", "June"), "Spring", "Summer"),
          Season = factor(Season))
 
@@ -781,21 +795,46 @@ eeavg <- ee_seasons %>%
             parameter_sd = sd(result, na.rm = TRUE),
             n = n())
 
+wqavg <- wq_seasons %>% 
+  mutate(log_turb = log(turb_field_NTU),
+         log_kt = log(ext_coeff_m),
+         log_zsd = log(secchi_depth_m),
+         log_chla = log(chla_ug.L)) %>% 
+  pivot_longer(cols = -c(site_code_long:dist_km, site_abbr1, Month, Season),
+               names_to = 'parameter',
+               values_to = 'result') %>% 
+  group_by(site_code_long, Season, parameter) %>% 
+  summarise(parameter_mean = mean(result, na.rm = TRUE),
+            parameter_sd = sd(result, na.rm = TRUE),
+            n = n())
+
 seasonal_summary <- eeavg %>% 
   select(-c(parameter_sd, n)) %>% 
   group_by(Season, parameter) %>% 
   get_summary_stats(type = "full")
+wq_seasonal_summary <- wqavg %>% 
+  select(-c(parameter_sd, n)) %>% 
+  group_by(Season, parameter) %>% 
+  get_summary_stats(type = 'full') %>% 
+  arrange(parameter)
 
 ttest_res <- eeavg %>%
   group_by(parameter) %>% 
   t_test(parameter_mean ~ Season, p.adjust.method = 'fdr', detailed = TRUE) %>% 
   add_significance() %>% 
   select(-c(.y., )) 
+wq_ttest_res <- wqavg %>% 
+  group_by(parameter) %>% 
+  t_test(parameter_mean ~ Season, p.adjust.method = 'fdr', detailed = TRUE) %>% 
+  add_significance() %>% 
+  select(-c(.y.:n2))
 
-write_csv(ttest_res, "./R_EEMs/outputs/data/eems-seasonal-ttest-fdr.csv")
-
+# write_csv(ttest_res, "./R_EEMs/outputs/data/eems-seasonal-ttest-fdr.csv")
 
 ttest_res %>% filter(grepl("sp", parameter))
+
+# Effect sizes 
+# small (0.2), medium (0.5), large (0.8), to very large (1.3) 
 
 # Lab turbidity effect size
 eeavg %>% 
@@ -811,43 +850,57 @@ eeavg %>%
 (1.92 - 1.15) / 0.728 # 1.057692
 
 # Field turbidity effect size
-eeavg %>% 
-  filter(parameter == "log_turb_field") %>% 
+wqavg %>% 
+  filter(parameter == "log_turb") %>% 
   group_by(Season) %>% 
   summarise(mean = mean(parameter_mean))
 
-eeavg %>% 
+wqavg %>% 
   ungroup() %>% 
-  filter(parameter == "log_turb_field") %>% 
+  filter(parameter == "log_turb") %>% 
   summarise(sd = sd(parameter_mean))
 
-(1.94 - 1.22) / 0.768 # 0.9375
+(1.73 - 1.17) / 0.797 # 0.7026 (medium)
 
 # Chl a effect size
-eeavg %>% 
-  filter(parameter == "chla_ug.L") %>% 
+wqavg %>% 
+  filter(parameter == "log_chla") %>% 
   group_by(Season) %>% 
   summarise(mean = mean(parameter_mean))
 
-eeavg %>% 
+wqavg %>% 
   ungroup() %>% 
-  filter(parameter == "chla_ug.L") %>% 
+  filter(parameter == "log_chla") %>% 
   summarise(sd = sd(parameter_mean))
 
-(32 - 11.7) / 17.7 # 1.146893
+(2.89 - 2.25) / 0.499 # 1.282565
 
 # kT effect size
-eeavg %>% 
-  filter(parameter == "ext_coeff_m") %>% 
+wqavg %>% 
+  filter(parameter == "log_kt") %>% 
   group_by(Season) %>% 
   summarise(mean = mean(parameter_mean))
 
-eeavg %>% 
+wqavg %>% 
   ungroup() %>% 
-  filter(parameter == "ext_coeff_m") %>% 
+  filter(parameter == "log_kt") %>% 
   summarise(sd = sd(parameter_mean))
 
-(1.68 - 1.16) / 0.527 # 0.9867173
+(0.322 - 0.0117) / 0.357 # 0.8691877
+
+# Secchi depth effect size
+wqavg %>% 
+  filter(parameter == "log_zsd") %>% 
+  group_by(Season) %>% 
+  summarise(mean = mean(parameter_mean))
+
+wqavg %>% 
+  ungroup() %>% 
+  filter(parameter == "log_zsd") %>% 
+  summarise(sd = sd(parameter_mean))
+
+(0.170 - (-0.0373)) / 0.419 # 0.4947494
+
 
 # TDN effect size
 eeavg %>% 
